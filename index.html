@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Bencinas CL ⛽</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:#F0F4FF;color:#1a1a2e}
+:root{--or:#FF6B35;--yl:#F5A623;--gr:#00C896;--bl:#4A90D9;--re:#FF4757}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+
+/* Header */
+.hdr{background:linear-gradient(135deg,var(--or),var(--yl));padding:11px 16px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 20px rgba(255,107,53,.35);z-index:200}
+.logo{display:flex;align-items:center;gap:9px}
+.logo-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#fff;line-height:1}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.8);font-weight:600}
+.hdr-avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);color:#fff;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.hdr-btn{border:none;border-radius:20px;background:#fff;color:var(--or);padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+
+/* Views */
+.view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.view.hidden{display:none!important}
+.scroll{flex:1;overflow-y:auto;padding:16px}
+
+/* Map */
+#gmap{flex:1;position:relative;overflow:hidden}
+#gmap-el{position:absolute;inset:0}
+
+/* Filter bar */
+.filter-bar{background:#fff;padding:9px 12px 7px;border-bottom:1px solid #f0f0f0;flex-shrink:0;z-index:10}
+.search-row{display:flex;align-items:center;gap:7px;background:#F0F4FF;border-radius:11px;padding:8px 12px;margin-bottom:8px}
+.search-row input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:13px;flex:1}
+.pills{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.pills::-webkit-scrollbar{display:none}
+.pill{border:2px solid #e8e8f0;border-radius:20px;padding:5px 13px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#fff;color:#666;transition:all .18s}
+.pill.active{color:#fff;border-color:transparent}
+
+/* Map controls */
+.map-ctrl-zoom{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:20}
+.zoom-btn{width:38px;height:38px;border-radius:10px;background:#fff;border:none;box-shadow:0 3px 12px rgba(0,0,0,.22);cursor:pointer;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.locate-btn{position:absolute;bottom:74px;right:12px;width:42px;height:42px;border-radius:50%;background:#fff;border:none;box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:20;transition:all .2s}
+.fab{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:20;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;border:none;border-radius:26px;padding:12px 24px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 22px rgba(255,107,53,.5);display:flex;align-items:center;gap:7px;white-space:nowrap}
+.report-mode-bar{position:absolute;top:12px;left:12px;right:60px;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;border-radius:14px;padding:8px 14px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(255,107,53,.4);z-index:20;pointer-events:none;text-align:center}
+.fab-row{position:absolute;bottom:12px;left:0;right:0;display:flex;gap:10px;padding:0 14px;z-index:20}
+
+/* Loading overlay */
+.map-loading{position:absolute;inset:0;background:rgba(240,244,255,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:15;gap:14px}
+.spinner{width:44px;height:44px;border:4px solid #e8e8f0;border-top-color:var(--or);border-radius:50%;animation:spin .8s linear infinite}
+.map-loading-txt{font-weight:700;font-size:14px;color:#666}
+
+/* Places badge on map — no price yet */
+.pm-nopr{background:#fff;border:2px solid #e0e0e0;border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:5px;box-shadow:0 2px 10px rgba(0,0,0,.12);white-space:nowrap;cursor:pointer}
+.pm-nopr-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
+.pm-nopr-name{font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#555;max-width:90px;overflow:hidden;text-overflow:ellipsis}
+
+/* Bottom sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:0 20px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.32,1)}
+.overlay.open .sheet{transform:translateY(0)}
+.handle{width:38px;height:4px;background:#ddd;border-radius:99px;margin:12px auto 18px}
+
+/* Forms */
+.field{margin-bottom:14px}
+.field label{font-size:13px;font-weight:700;display:block;margin-bottom:5px}
+.inp{border:2px solid #e8e8f0;border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:14px;width:100%;outline:none;transition:border .2s}
+.inp:focus{border-color:var(--or)}
+.sel{border:2px solid #e8e8f0;border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:14px;width:100%;outline:none;background:#fff;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-p{border:none;border-radius:14px;padding:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;width:100%;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;margin-bottom:10px}
+.btn-s{border:none;border-radius:14px;padding:13px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:100%;background:#f0f0f0;color:#666}
+.loc-info{background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:11px;margin-bottom:14px;display:flex;align-items:center;gap:9px;border:1.5px solid rgba(255,107,53,.2)}
+
+/* Ranking */
+.rank-row{background:#fff;border-radius:15px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;animation:fi .3s ease both}
+.rank-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:8px 0 22px}
+.pod-item{flex:1;text-align:center}
+.pod-bar{border-radius:9px 9px 0 0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;margin-top:5px}
+
+/* Profile */
+.prof-hero{background:linear-gradient(135deg,var(--or),var(--yl));padding:26px 20px 22px;text-align:center;color:#fff}
+.prof-av{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin:0 auto 10px;border:3px solid rgba(255,255,255,.5)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;padding:14px}
+.stat-card{background:#fff;border-radius:15px;padding:14px 6px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.entry-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 3px 14px rgba(0,0,0,.08);cursor:pointer;border:2px solid transparent;transition:border .2s;margin-bottom:13px}
+.entry-card:hover{border-color:var(--or)}
+
+/* Bottom nav */
+.bnav{background:#fff;border-top:1px solid #f0f0f0;display:flex;justify-content:space-around;padding:7px 0 11px;flex-shrink:0;box-shadow:0 -4px 18px rgba(0,0,0,.07);z-index:200}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 14px;border-radius:11px;font-size:11px;font-weight:700;color:#aaa;transition:all .18s}
+.nav-item.active{color:var(--or);background:rgba(255,107,53,.08)}
+.nav-icon{font-size:21px}
+
+/* Source badge */
+.source-google{display:inline-flex;align-items:center;gap:4px;background:#F0F4FF;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:#4A90D9;margin-top:4px}
+.source-user{display:inline-flex;align-items:center;gap:4px;background:#FFF0E6;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--or);margin-top:4px}
+
+/* Toast */
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--gr);color:#fff;padding:11px 22px;border-radius:16px;font-weight:700;font-size:14px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.22);pointer-events:none;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--re)}
+
+/* Login */
+.login-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 3px 16px rgba(0,0,0,.08)}
+.toggle-auth{text-align:center;margin-top:13px;font-size:13px;color:#999}
+.toggle-auth span{color:var(--or);font-weight:700;cursor:pointer}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="logo">
+      <span style="font-size:24px">⛽</span>
+      <div>
+        <div class="logo-title">Bencinas CL</div>
+        <div class="logo-sub">Precios en tiempo real 🇨🇱</div>
+      </div>
+    </div>
+    <div id="hdr-right"></div>
+  </div>
+
+  <!-- MAP VIEW -->
+  <div class="view" id="view-map">
+    <div class="filter-bar" id="filter-bar">
+      <div class="search-row">
+        <span>🔍</span>
+        <input id="search-inp" placeholder="Buscar estación..." oninput="filterOverlays()"/>
+      </div>
+      <div class="pills" id="fuel-pills"></div>
+    </div>
+    <div id="gmap">
+      <div id="gmap-el"></div>
+
+      <!-- Loading state -->
+      <div class="map-loading" id="map-loading">
+        <div class="spinner"></div>
+        <div class="map-loading-txt">Cargando bencineras cercanas…</div>
+      </div>
+
+      <!-- Controls -->
+      <div class="map-ctrl-zoom" id="zoom-ctrl">
+        <button class="zoom-btn" onclick="gmapZoom(1)">+</button>
+        <button class="zoom-btn" onclick="gmapZoom(-1)">−</button>
+      </div>
+      <button class="locate-btn" id="locate-btn" onclick="locateAndSearch()">📍</button>
+      <div class="report-mode-bar hidden" id="report-mode-bar">📍 Toca una bencinera o el mapa para reportar</div>
+      <div id="fab-container">
+        <button class="fab" id="main-fab" onclick="startPinMode()">
+          <span>➕</span> Reportar precio aquí
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RANKING VIEW -->
+  <div class="view hidden" id="view-ranking">
+    <div class="scroll">
+      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">🏆 Ranking</div>
+      <div style="color:#999;font-size:13px;margin-bottom:14px">Estaciones más baratas</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <select class="sel" id="rank-fuel" onchange="renderRanking()" style="flex:1"></select>
+        <select class="sel" id="rank-region" onchange="renderRanking()" style="flex:1">
+          <option value="Todas">Todas</option>
+        </select>
+      </div>
+      <div id="podium-el"></div>
+      <div id="ranking-list"></div>
+    </div>
+  </div>
+
+  <!-- REPORT ENTRY VIEW -->
+  <div class="view hidden" id="view-report">
+    <div class="scroll">
+      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">📍 Reportar precio</div>
+      <div style="color:#999;font-size:13px;margin-bottom:18px">¿Cómo quieres ubicar la estación?</div>
+      <div id="report-login-warn" class="hidden" style="background:#FFF8DC;border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--yl)">
+        <div style="font-weight:700;font-size:14px">⚠️ Inicia sesión para reportar</div>
+        <button class="btn-p" style="margin-top:10px;width:auto;padding:9px 20px;font-size:13px" onclick="showView('login')">Entrar →</button>
+      </div>
+      <div class="entry-card" onclick="startPinMode()">
+        <div style="font-size:32px;margin-bottom:7px">🗺️</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px">Tocar en el mapa</div>
+        <div style="color:#999;font-size:13px">Toca una bencinera de Google Maps o cualquier punto</div>
+      </div>
+      <div class="entry-card" onclick="startGpsReport()">
+        <div style="font-size:32px;margin-bottom:7px">📡</div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px">Usar mi ubicación GPS</div>
+        <div style="color:#999;font-size:13px" id="gps-card-sub">Reporta desde donde estás parado ahora</div>
+      </div>
+      <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
+        <span style="font-size:22px">🏆</span>
+        <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por cada reporte válido</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW -->
+  <div class="view hidden" id="view-profile">
+    <div style="flex:1;overflow-y:auto">
+      <div class="prof-hero" id="prof-hero"></div>
+      <div class="stats-grid" id="prof-stats"></div>
+      <div style="padding:0 14px 20px" id="prof-body"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN VIEW -->
+  <div class="view hidden" id="view-login">
+    <div class="scroll">
+      <div style="text-align:center;padding-bottom:22px">
+        <div style="font-size:50px">⛽</div>
+        <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-top:7px" id="login-title">¡Bienvenido!</div>
+        <div style="color:#999;font-size:13px;margin-top:3px" id="login-sub">Inicia sesión para reportar</div>
+      </div>
+      <div class="login-card">
+        <div class="field hidden" id="name-field">
+          <label>👤 Nombre</label><input class="inp" id="f-name" placeholder="Tu nombre" type="text"/>
+        </div>
+        <div class="field">
+          <label>📧 Email</label><input class="inp" id="f-email" placeholder="correo@ejemplo.cl" type="email"/>
+        </div>
+        <div class="field">
+          <label>🔒 Contraseña</label><input class="inp" id="f-pass" placeholder="••••••••" type="password"/>
+        </div>
+        <button class="btn-p" id="login-submit-btn" onclick="doLogin()">🔑 Iniciar sesión</button>
+        <div class="toggle-auth">¿No tienes cuenta? <span id="toggle-link" onclick="toggleAuth()">Regístrate</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <div class="nav-item active" id="nav-map"     onclick="showView('map')">     <span class="nav-icon">🗺️</span>Mapa</div>
+    <div class="nav-item"        id="nav-ranking" onclick="showView('ranking')"> <span class="nav-icon">🏆</span>Ranking</div>
+    <div class="nav-item"        id="nav-report"  onclick="showView('report')">  <span class="nav-icon">➕</span>Reportar</div>
+    <div class="nav-item"        id="nav-profile" onclick="showView('profile')"> <span class="nav-icon">👤</span>Perfil</div>
+  </div>
+</div>
+
+<!-- STATION DETAIL SHEET -->
+<div class="overlay" id="stn-overlay" onclick="closeSheet('stn-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div id="stn-content"></div>
+  </div>
+</div>
+
+<!-- REPORT FORM SHEET -->
+<div class="overlay" id="rep-overlay" onclick="closeSheet('rep-overlay')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="handle"></div>
+    <div id="rep-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const FUEL_TYPES  = ["93","95","97","Diesel","Kerosene"];
+const FUEL_COLORS = {"93":"#FF6B35","95":"#F5A623","97":"#00C896","Diesel":"#4A90D9","Kerosene":"#9B59B6"};
+const REGIONS     = ["Arica y Parinacota","Tarapacá","Antofagasta","Atacama","Coquimbo","Valparaíso","Metropolitana","O'Higgins","Maule","Ñuble","Biobío","La Araucanía","Los Ríos","Los Lagos","Aysén","Magallanes"];
+const GMAP_KEY    = "AIzaSyD6_MOIgbB-2oi75xsal6HIj344t2b7ous";
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let gmap          = null;
+let placesService = null;
+let overlays      = [];      // PriceOverlay instances
+let placeOverlays = [];      // GooglePlaceOverlay instances (no price yet)
+let reportMarker  = null;
+let userMarker    = null;
+let currentUser   = null;
+let selectedFuel  = "95";
+let reportMode    = false;
+let isReg         = false;
+let pendingLL     = null;
+let pendingPlace  = null;   // place data pre-filled when tapping a Google place
+let toastTimer    = null;
+
+// Stations with user-reported prices
+let stations = [];
+
+// ── MARKER FACTORIES (native Marker + label — always renders correctly) ────────
+
+function makePlaceIcon(name) {
+  // White pill marker with fuel pump icon — SVG encoded as data URL
+  const short = name.length > 14 ? name.slice(0,13)+"…" : name;
+  const w = Math.max(120, short.length * 7 + 40);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="44">
+    <rect x="1" y="1" width="${w-2}" height="32" rx="8" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
+    <text x="12" y="14" font-size="12" font-family="Arial" fill="#333" font-weight="bold">⛽</text>
+    <text x="28" y="14" font-size="10" font-family="Arial" fill="#333" font-weight="bold">${short}</text>
+    <text x="28" y="26" font-size="8" font-family="Arial" fill="#aaa">Sin precio · tap para reportar</text>
+    <polygon points="${w/2-6},33 ${w/2+6},33 ${w/2},41" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
+  </svg>`;
+  return {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+    anchor: new google.maps.Point(w/2, 41),
+    scaledSize: new google.maps.Size(w, 44),
+  };
+}
+
+function makePriceIcon(price, color, cheap) {
+  const label = "$" + price.toLocaleString("es-CL");
+  const w = cheap ? label.length * 9 + 60 : label.length * 8 + 20;
+  const h = cheap ? 54 : 38;
+  let svg;
+  if (cheap) {
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+      <rect x="0" y="0" width="${w}" height="18" rx="5" fill="#00a878"/>
+      <text x="${w/2}" y="13" font-size="9" font-family="Arial" fill="white" font-weight="900" text-anchor="middle" letter-spacing="1">MÁS BARATO</text>
+      <rect x="0" y="16" width="${w}" height="26" rx="8" fill="#00C896" stroke="white" stroke-width="2"/>
+      <text x="14" y="34" font-size="15" font-family="Arial">👑</text>
+      <text x="32" y="34" font-size="14" font-family="Arial" fill="white" font-weight="900">${label}</text>
+      <polygon points="${w/2-7},42 ${w/2+7},42 ${w/2},${h}" fill="#00C896"/>
+    </svg>`;
+  } else {
+    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+      <rect x="0" y="0" width="${w}" height="26" rx="8" fill="${color}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
+      <text x="${w/2}" y="18" font-size="13" font-family="Arial" fill="white" font-weight="900" text-anchor="middle">${label}</text>
+      <polygon points="${w/2-6},26 ${w/2+6},26 ${w/2},${h}" fill="${color}"/>
+    </svg>`;
+  }
+  return {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+    anchor: new google.maps.Point(w/2, h),
+    scaledSize: new google.maps.Size(w, h),
+  };
+}
+
+// ── GOOGLE MAPS INIT ──────────────────────────────────────────────────────────
+function initMap() {
+  gmap = new google.maps.Map(document.getElementById("gmap-el"), {
+    center: { lat:-33.4489, lng:-70.6693 },
+    zoom: 13,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    zoomControl: false,
+    gestureHandling: "greedy",
+    styles: [
+      {featureType:"poi",stylers:[{visibility:"off"}]},
+      {featureType:"poi.park",stylers:[{visibility:"off"}]},
+      {featureType:"transit",stylers:[{visibility:"off"}]},
+      {featureType:"road",elementType:"labels.icon",stylers:[{visibility:"off"}]},
+      {featureType:"landscape.man_made",stylers:[{visibility:"simplified"}]},
+    ],
+  });
+
+  placesService = new google.maps.places.PlacesService(gmap);
+
+  // Click anywhere on map in report mode
+  gmap.addListener("click", e => {
+    if (!reportMode) return;
+    pendingPlace = null;
+    placeReportPin(e.latLng.lat(), e.latLng.lng());
+  });
+
+  // When map stops moving, search nearby gas stations
+  gmap.addListener("idle", () => {
+    if (gmap.getZoom() >= 12) searchNearbyStations();
+  });
+
+  renderFuelPills();
+  setupRankingSelects();
+  locateAndSearch(); // auto-locate on start
+}
+
+// ── PLACES SEARCH ─────────────────────────────────────────────────────────────
+function searchNearbyStations() {
+  if (!placesService) return;
+  const center = gmap.getCenter();
+
+  placesService.nearbySearch({
+    location: center,
+    radius: 3000,
+    type: "gas_station",
+  }, (results, status) => {
+    document.getElementById("map-loading").style.display = "none";
+    if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
+    const gasStations = results.filter(p => p.types && p.types.includes("gas_station"));
+
+    // Remove old place markers
+    placeOverlays.forEach(m => m.setMap(null));
+    placeOverlays = [];
+
+    gasStations.forEach(place => {
+      const reported = stations.find(s =>
+        s.placeId === place.place_id ||
+        (Math.abs(s.lat - place.geometry.location.lat()) < 0.0005 &&
+         Math.abs(s.lng - place.geometry.location.lng()) < 0.0005)
+      );
+      if (reported) return;
+
+      const marker = new google.maps.Marker({
+        position: place.geometry.location,
+        map: gmap,
+        icon: makePlaceIcon(place.name),
+        title: place.name,
+        zIndex: 5,
+      });
+      marker.addListener("click", () => onPlaceClick(place));
+      placeOverlays.push(marker);
+    });
+
+    renderMarkers();
+  });
+}
+
+// ── RENDER PRICE MARKERS ──────────────────────────────────────────────────────
+function renderMarkers() {
+  overlays.forEach(m => m.setMap(null));
+  overlays = [];
+  const q   = (document.getElementById("search-inp")?.value || "").toLowerCase();
+  const vis = stations.filter(s => s.prices[selectedFuel] &&
+    (!q || s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)));
+  const min = vis.length ? Math.min(...vis.map(s => s.prices[selectedFuel])) : 0;
+  vis.forEach(s => {
+    const cheap = s.prices[selectedFuel] === min;
+    const marker = new google.maps.Marker({
+      position: { lat: s.lat, lng: s.lng },
+      map: gmap,
+      icon: makePriceIcon(s.prices[selectedFuel], FUEL_COLORS[selectedFuel], cheap),
+      title: s.name,
+      zIndex: cheap ? 20 : 10,
+    });
+    marker.addListener("click", () => showStationSheet(s));
+    overlays.push(marker);
+  });
+}
+
+function filterOverlays() { renderMarkers(); }
+
+// ── FUEL PILLS ────────────────────────────────────────────────────────────────
+function renderFuelPills() {
+  document.getElementById("fuel-pills").innerHTML = FUEL_TYPES.map(f =>
+    `<button class="pill${f===selectedFuel?" active":""}" style="${f===selectedFuel?`background:${FUEL_COLORS[f]};border-color:${FUEL_COLORS[f]}`:""}" onclick="selectFuel('${f}')">${f}</button>`
+  ).join("");
+}
+function selectFuel(f) { selectedFuel = f; renderFuelPills(); renderMarkers(); }
+
+// ── WHEN TAPPING A GOOGLE PLACE ───────────────────────────────────────────────
+function onPlaceClick(place) {
+  if (reportMode) {
+    // In report mode: pre-fill the form with place data
+    pendingPlace = place;
+    const lat = place.geometry.location.lat();
+    const lng = place.geometry.location.lng();
+    placeReportPin(lat, lng);
+    return;
+  }
+  // Show place info sheet with "Reportar precio" CTA
+  document.getElementById("stn-content").innerHTML = `
+    <div style="display:flex;gap:13px;align-items:center;margin-bottom:16px">
+      <div style="width:48px;height:48px;border-radius:13px;background:#FFF0E6;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛽</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">${place.name}</div>
+        <div style="color:#999;font-size:12px;margin-top:2px">${place.vicinity||""}</div>
+        <span class="source-google">🗺️ Google Maps</span>
+        ${place.rating ? `<div style="font-size:12px;color:#F5A623;margin-top:4px">⭐ ${place.rating} (${place.user_ratings_total||0} reseñas)</div>` : ""}
+      </div>
+    </div>
+    <div style="background:#f8f8f8;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
+      <div style="font-size:28px;margin-bottom:6px">💰</div>
+      <div style="font-weight:800;font-size:15px;margin-bottom:4px">Sin precio reportado aún</div>
+      <div style="color:#999;font-size:13px">¡Sé el primero en reportar el precio aquí!</div>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn-s" style="flex:1;padding:12px" onclick="closeSheet('stn-overlay')">Cerrar</button>
+      <button class="btn-p" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px" onclick="closeSheet('stn-overlay');reportFromPlace(${place.geometry.location.lat()},${place.geometry.location.lng()},'${encodeURIComponent(place.name)}','${encodeURIComponent(place.vicinity||"")}')">
+        ➕ Reportar precio
+      </button>
+    </div>`;
+  openSheet("stn-overlay");
+}
+
+function reportFromPlace(lat, lng, encodedName, encodedAddr) {
+  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
+  pendingLL = { lat, lng };
+  openReportSheet(lat, lng, decodeURIComponent(encodedName), decodeURIComponent(encodedAddr));
+}
+
+// ── LOCATE + SEARCH ───────────────────────────────────────────────────────────
+function locateAndSearch() {
+  if (!navigator.geolocation) { showToast("Geolocalización no disponible","err"); return; }
+  const btn = document.getElementById("locate-btn");
+  btn.style.animation = "spin 1s linear infinite"; btn.textContent = "⏳";
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    btn.style.animation = ""; btn.textContent = "📍";
+    const ll = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    gmap.panTo(ll); gmap.setZoom(14);
+
+    if (userMarker) userMarker.setMap(null);
+    userMarker = new google.maps.Marker({
+      position: ll, map: gmap,
+      icon: { path: google.maps.SymbolPath.CIRCLE, scale:9, fillColor:"#4A90D9", fillOpacity:1, strokeColor:"#fff", strokeWeight:2.5 },
+      title: "Tu ubicación", zIndex:999
+    });
+    showToast("📍 Ubicación obtenida — buscando bencineras…");
+    // idle listener will trigger searchNearbyStations
+  }, () => {
+    btn.style.animation = ""; btn.textContent = "📍";
+    document.getElementById("map-loading").style.display = "none";
+    showToast("No se pudo obtener ubicación","err");
+    searchNearbyStations(); // search around default center anyway
+  }, { enableHighAccuracy:true, timeout:8000 });
+}
+
+// ── REPORT MODE ───────────────────────────────────────────────────────────────
+function startPinMode() {
+  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
+  reportMode = true;
+  showView("map");
+  document.getElementById("filter-bar").style.display = "none";
+  document.getElementById("report-mode-bar").classList.remove("hidden");
+  document.getElementById("zoom-ctrl").style.display = "none";
+  document.getElementById("locate-btn").style.display = "none";
+  document.getElementById("fab-container").innerHTML = `
+    <div class="fab-row">
+      <button class="btn-s" style="flex:1;padding:12px" onclick="cancelPinMode()">✕ Cancelar</button>
+      <button class="btn-p" id="confirm-pin-btn" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px;opacity:.5" onclick="confirmPin()" disabled>✅ Confirmar</button>
+    </div>`;
+  gmap.setOptions({ draggableCursor:"crosshair" });
+  showToast("Toca una bencinera o el mapa para marcar");
+}
+
+function placeReportPin(lat, lng) {
+  if (reportMarker) reportMarker.setMap(null);
+  reportMarker = new google.maps.Marker({
+    position:{lat,lng}, map:gmap, draggable:true,
+    animation: google.maps.Animation.DROP,
+    icon:{
+      url:"data:image/svg+xml;utf8,"+encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#FF6B35"/><stop offset="1" stop-color="#F5A623"/>
+          </linearGradient></defs>
+          <path d="M18 0C8 0 0 8 0 18c0 12 18 30 18 30S36 30 36 18C36 8 28 0 18 0z" fill="url(#g)"/>
+          <circle cx="18" cy="18" r="7" fill="white" opacity=".9"/>
+        </svg>`),
+      anchor: new google.maps.Point(18,48),
+    }, zIndex:1000
+  });
+  reportMarker.addListener("dragend", e => { pendingLL = {lat:e.latLng.lat(),lng:e.latLng.lng()}; });
+  pendingLL = {lat,lng};
+  const btn = document.getElementById("confirm-pin-btn");
+  if (btn) { btn.disabled=false; btn.style.opacity="1"; }
+}
+
+function confirmPin() {
+  if (!pendingLL) return;
+  const name = pendingPlace ? pendingPlace.name : "";
+  const addr = pendingPlace ? (pendingPlace.vicinity||"") : "";
+  exitPinMode();
+  openReportSheet(pendingLL.lat, pendingLL.lng, name, addr);
+}
+
+function cancelPinMode() { exitPinMode(); pendingLL=null; pendingPlace=null; }
+
+function exitPinMode() {
+  reportMode = false;
+  if (reportMarker) { reportMarker.setMap(null); reportMarker=null; }
+  document.getElementById("filter-bar").style.display="";
+  document.getElementById("report-mode-bar").classList.add("hidden");
+  document.getElementById("zoom-ctrl").style.display="";
+  document.getElementById("locate-btn").style.display="";
+  document.getElementById("fab-container").innerHTML =
+    `<button class="fab" onclick="startPinMode()"><span>➕</span> Reportar precio aquí</button>`;
+  gmap.setOptions({draggableCursor:null});
+}
+
+function startGpsReport() {
+  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
+  document.getElementById("gps-card-sub").textContent="Obteniendo ubicación...";
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById("gps-card-sub").textContent="Reporta desde donde estás parado ahora";
+    const ll={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    pendingLL=ll; pendingPlace=null;
+    showView("map");
+    gmap.panTo(ll);
+    openReportSheet(ll.lat,ll.lng,"","");
+  },()=>{
+    document.getElementById("gps-card-sub").textContent="Reporta desde donde estás parado ahora";
+    showToast("No se pudo obtener ubicación","err");
+  },{enableHighAccuracy:true,timeout:8000});
+}
+
+// ── REPORT FORM SHEET ─────────────────────────────────────────────────────────
+function openReportSheet(lat, lng, prefillName="", prefillAddr="") {
+  const regionOpts = REGIONS.map(r=>`<option value="${r}"${r==="Metropolitana"?" selected":""}>${r}</option>`).join("");
+  const fuelOpts   = FUEL_TYPES.map(f=>`<option value="${f}"${f===selectedFuel?" selected":""}>${f}</option>`).join("");
+  document.getElementById("rep-content").innerHTML = `
+    <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px">⛽ Reportar precio</div>
+    <div style="color:#999;font-size:13px;margin-bottom:14px">Completa los datos de la estación</div>
+    <div class="loc-info">
+      <span style="font-size:22px">📍</span>
+      <div>
+        <div style="font-weight:700;font-size:13px">${prefillName||"Ubicación seleccionada"}</div>
+        <div style="font-size:11px;color:#999">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
+      </div>
+    </div>
+    <div class="field"><label>🏪 Nombre de la estación</label>
+      <input class="inp" id="r-name" placeholder="ej: Copec Providencia" value="${prefillName}"/></div>
+    <div class="field"><label>🏙️ Dirección</label>
+      <input class="inp" id="r-addr" placeholder="ej: Av. Providencia 1234" value="${prefillAddr}"/></div>
+    <div class="row2">
+      <div class="field"><label>⛽ Combustible</label><select class="sel" id="r-fuel">${fuelOpts}</select></div>
+      <div class="field"><label>💰 Precio $/L</label><input class="inp" id="r-price" type="number" placeholder="1050" min="500" max="3000"/></div>
+    </div>
+    <div class="field"><label>🗺️ Región</label><select class="sel" id="r-region">${regionOpts}</select></div>
+    <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;margin-bottom:18px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
+      <span style="font-size:22px">🏆</span>
+      <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por reportar</span>
+    </div>
+    <button class="btn-p" onclick="submitReport(${lat},${lng})">Reportar precio ⛽</button>
+    <button class="btn-s" onclick="closeSheet('rep-overlay')">Cancelar</button>`;
+  openSheet("rep-overlay");
+}
+
+function submitReport(lat, lng) {
+  const name  = document.getElementById("r-name").value.trim();
+  const addr  = document.getElementById("r-addr").value.trim();
+  const fuel  = document.getElementById("r-fuel").value;
+  const price = parseInt(document.getElementById("r-price").value);
+  const region= document.getElementById("r-region").value;
+  if (!name) { showToast("Ingresa el nombre de la estación","err"); return; }
+  if (!price||price<500||price>3000) { showToast("Precio inválido (500–3000)","err"); return; }
+  const ns = {
+    id:Date.now(), name, lat, lng,
+    address:addr||"Sin dirección", region,
+    prices:{[fuel]:price},
+    placeId: pendingPlace?.place_id || null,
+    by:currentUser.name, ago:"ahora", v:1, fromGoogle:!!pendingPlace
+  };
+  stations.unshift(ns);
+  currentUser.reports++; currentUser.pts=(currentUser.pts||0)+10;
+  pendingPlace=null;
+  closeSheet("rep-overlay");
+  // Remove matching Google place overlay (now has price)
+  placeOverlays = placeOverlays.filter(o=>{
+    const match = o.place.place_id===ns.placeId ||
+      (Math.abs(o.place.geometry.location.lat()-lat)<0.0005 && Math.abs(o.place.geometry.location.lng()-lng)<0.0005);
+    if (match) o.setMap(null);
+    return !match;
+  });
+  renderMarkers();
+  gmap.panTo({lat,lng});
+  showToast("¡Precio reportado! +10 pts 🏆");
+  renderHeader();
+}
+
+// ── STATION DETAIL SHEET ──────────────────────────────────────────────────────
+function showStationSheet(s) {
+  const pricesHtml = Object.entries(s.prices).map(([f,p])=>`
+    <div style="background:${FUEL_COLORS[f]}18;border-radius:13px;padding:12px 13px;border:2px solid ${FUEL_COLORS[f]}40;text-align:center">
+      <div style="font-size:11px;font-weight:700;color:${FUEL_COLORS[f]}">Bencina ${f}</div>
+      <div style="font-weight:900;font-size:22px">$${p.toLocaleString("es-CL")}</div>
+      <div style="font-size:11px;color:#999">por litro</div>
+    </div>`).join("");
+  document.getElementById("stn-content").innerHTML = `
+    <div style="display:flex;gap:13px;align-items:center;margin-bottom:15px">
+      <div style="width:48px;height:48px;border-radius:13px;background:#FFF0E6;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛽</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">${s.name}</div>
+        <div style="color:#999;font-size:12px;margin-top:2px">${s.address}</div>
+        <span class="${s.fromGoogle?"source-google":"source-user"}">${s.fromGoogle?"🗺️ Google Maps":"👤 Reportado por comunidad"}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px">${pricesHtml}</div>
+    <div style="background:#f7f7f7;border-radius:13px;padding:11px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:center">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--yl));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;flex-shrink:0">${s.by[0].toUpperCase()}</div>
+      <div><div style="font-weight:700;font-size:13px">${s.by}</div><div style="font-size:11px;color:#999">${s.ago} · ${s.v} votos ✓</div></div>
+    </div>
+    <div style="display:flex;gap:9px">
+      <button class="btn-s" style="flex:1;padding:12px" onclick="closeSheet('stn-overlay')">Cerrar</button>
+      <button class="btn-p" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px"
+        onclick="closeSheet('stn-overlay');pendingLL={lat:${s.lat},lng:${s.lng}};openReportSheet(${s.lat},${s.lng},'${s.name.replace(/'/g,"\\'")}','${s.address.replace(/'/g,"\\'")}')">
+        Actualizar precio ✏️
+      </button>
+    </div>`;
+  openSheet("stn-overlay");
+}
+
+// ── RANKING ───────────────────────────────────────────────────────────────────
+function setupRankingSelects() {
+  document.getElementById("rank-fuel").innerHTML = FUEL_TYPES.map(f=>`<option value="${f}"${f===selectedFuel?" selected":""}>${f}</option>`).join("");
+  document.getElementById("rank-region").innerHTML =
+    `<option value="Todas">Todas las regiones</option>`+REGIONS.map(r=>`<option value="${r}">${r}</option>`).join("");
+}
+
+function renderRanking() {
+  const fuel=document.getElementById("rank-fuel").value;
+  const region=document.getElementById("rank-region").value;
+  const list=[...stations].filter(s=>s.prices[fuel]&&(region==="Todas"||s.region===region)).sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
+  const medals=["🥇","🥈","🥉"],mbg=["#FFF8DC","#F5F5F5","#FFF0E6"];
+  let pod="";
+  if(list.length>=3){
+    const or=[list[1],list[0],list[2]],hs=[85,115,65],cols=["#C0C0C0","#FFD700","#CD7F32"],emj=["🥈","🥇","🥉"];
+    pod=`<div class="podium">${or.map((s,i)=>`
+      <div class="pod-item">
+        <div style="font-size:10px;font-weight:700;color:#999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name.split(" ")[0]}</div>
+        <div style="font-size:18px">${emj[i]}</div>
+        <div style="font-weight:900;font-size:13px;color:${FUEL_COLORS[fuel]}">$${s.prices[fuel].toLocaleString("es-CL")}</div>
+        <div class="pod-bar" style="background:${cols[i]};height:${hs[i]}px">${i===1?1:i===0?2:3}</div>
+      </div>`).join("")}</div>`;
+  }
+  document.getElementById("podium-el").innerHTML=pod;
+  document.getElementById("ranking-list").innerHTML=list.map((s,i)=>`
+    <div class="rank-row" style="background:${i<3?mbg[i]:"#fff"};animation-delay:${i*.04}s"
+      onclick="showView('map');gmap.panTo({lat:${s.lat},lng:${s.lng}});gmap.setZoom(15)">
+      <div class="rank-num" style="background:${i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"#f0f0f0"};color:${i<3?"#fff":"#aaa"};font-size:${i<3?16:13}px">${i<3?medals[i]:i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</div>
+        <div style="font-size:11px;color:#999;margin-top:2px">${s.region} · ${s.ago}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-weight:900;font-size:19px;color:${i===0?"#FFD700":FUEL_COLORS[fuel]}">$${s.prices[fuel].toLocaleString("es-CL")}</div>
+        ${i>0?`<div style="font-size:11px;color:var(--or)">+$${(s.prices[fuel]-list[0].prices[fuel]).toLocaleString("es-CL")}</div>`:`<div style="font-size:11px;color:var(--gr);font-weight:700">✓ Más barato</div>`}
+      </div>
+    </div>`).join("")||`<div style="text-align:center;color:#ccc;padding:40px;font-size:14px">Sin datos aún — ¡reporta el primero!</div>`;
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function toggleAuth() {
+  isReg=!isReg;
+  document.getElementById("name-field").classList.toggle("hidden",!isReg);
+  document.getElementById("login-title").textContent=isReg?"Crear cuenta":"¡Bienvenido!";
+  document.getElementById("login-sub").textContent=isReg?"Únete a BencinaCL":"Inicia sesión para reportar";
+  document.getElementById("login-submit-btn").textContent=isReg?"🚀 Crear cuenta":"🔑 Iniciar sesión";
+  document.getElementById("toggle-link").textContent=isReg?"Inicia sesión":"Regístrate";
+  document.querySelector(".toggle-auth").childNodes[0].nodeValue=isReg?"¿Ya tienes cuenta? ":"¿No tienes cuenta? ";
+}
+
+function doLogin() {
+  const email=document.getElementById("f-email").value.trim();
+  const pass=document.getElementById("f-pass").value;
+  const name=document.getElementById("f-name").value.trim();
+  if(!email||!pass){showToast("Completa todos los campos","err");return;}
+  if(isReg&&!name){showToast("Ingresa tu nombre","err");return;}
+  const n=isReg?name:email.split("@")[0];
+  currentUser={name:n,email,av:n[0].toUpperCase(),reports:isReg?0:5,pts:isReg?0:50,joined:"Marzo 2026"};
+  renderHeader(); showView("map");
+  showToast(isReg?`¡Bienvenido, ${n}! 🎉`:`¡Hola, ${n}! 👋`);
+}
+
+// ── PROFILE ───────────────────────────────────────────────────────────────────
+function renderProfile() {
+  if(!currentUser){showView("login");return;}
+  const u=currentUser,level=u.reports>=20?"🏅 Experto":u.reports>=10?"⭐ Colaborador":"🌱 Nuevo";
+  document.getElementById("prof-hero").innerHTML=`
+    <div class="prof-av">${u.av}</div>
+    <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800">${u.name}</div>
+    <div style="opacity:.8;font-size:13px;margin-top:2px">${u.email}</div>`;
+  document.getElementById("prof-stats").innerHTML=[["⛽",u.reports,"Reportes"],["🏆",u.pts||0,"Puntos"],["⭐",Math.min(5,Math.floor(u.reports/2)+1),"Estrellas"]].map(([ic,v,l])=>`
+    <div class="stat-card"><div style="font-size:20px">${ic}</div><div style="font-weight:900;font-size:20px;color:var(--or)">${v}</div><div style="font-size:11px;color:#999;font-weight:600">${l}</div></div>`).join("");
+  const pct=Math.min(100,(u.reports/20)*100);
+  document.getElementById("prof-body").innerHTML=`
+    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.06)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-weight:800;font-size:14px">Tu nivel</div>
+        <div style="background:#FFF8DC;color:var(--or);font-weight:700;font-size:11px;padding:3px 11px;border-radius:20px">${level}</div>
+      </div>
+      <div style="background:#f0f0f0;border-radius:99px;height:9px;overflow:hidden">
+        <div style="background:linear-gradient(90deg,var(--or),var(--yl));height:100%;border-radius:99px;width:${pct}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:#999"><span>${u.reports} reportes</span><span>Meta: 20</span></div>
+    </div>
+    <button class="btn-p" onclick="showView('report')">⛽ Reportar nuevo precio</button>
+    <button class="btn-s" onclick="doLogout()">Cerrar sesión</button>`;
+}
+function doLogout(){currentUser=null;renderHeader();showView("map");showToast("¡Hasta luego! 👋");}
+
+// ── HEADER ────────────────────────────────────────────────────────────────────
+function renderHeader() {
+  const r=document.getElementById("hdr-right");
+  r.innerHTML=currentUser
+    ?`<div style="display:flex;align-items:center;gap:7px;cursor:pointer" onclick="showView('profile')">
+        <div class="hdr-avatar">${currentUser.av}</div>
+        <span style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</span>
+       </div>`
+    :`<button class="hdr-btn" onclick="showView('login')">Entrar</button>`;
+}
+
+// ── VIEWS ─────────────────────────────────────────────────────────────────────
+const VIEWS=["map","ranking","report","profile","login"];
+function showView(name) {
+  if(name==="profile"&&!currentUser) name="login";
+  VIEWS.forEach(v=>{
+    document.getElementById(`view-${v}`).classList.toggle("hidden",v!==name);
+    const n=document.getElementById(`nav-${v}`);
+    if(n) n.classList.toggle("active",v===name);
+  });
+  if(name==="ranking") renderRanking();
+  if(name==="profile") renderProfile();
+  if(name==="report") document.getElementById("report-login-warn").classList.toggle("hidden",!!currentUser);
+  if(name==="map"&&gmap) setTimeout(()=>google.maps.event.trigger(gmap,"resize"),50);
+}
+
+// ── SHEETS ────────────────────────────────────────────────────────────────────
+function openSheet(id){document.getElementById(id).classList.add("open");}
+function closeSheet(id){document.getElementById(id).classList.remove("open");}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg,type="ok"){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.className="toast"+(type==="err"?" err":"");
+  t.classList.add("show"); clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove("show"),3000);
+}
+
+// ── ZOOM BUTTONS ──────────────────────────────────────────────────────────────
+function gmapZoom(d){if(gmap) gmap.setZoom(gmap.getZoom()+d);}
+
+renderHeader();
+</script>
+
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6_MOIgbB-2oi75xsal6HIj344t2b7ous&libraries=places&callback=initMap">
+</script>
+</body>
+</html>
