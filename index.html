@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Bencinas CL ⛽</title>
+<title>Tanque Lleno ⛽</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -90,9 +90,13 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 
 /* Bottom nav */
 .bnav{background:#fff;border-top:1px solid #f0f0f0;display:flex;justify-content:space-around;padding:7px 0 11px;flex-shrink:0;box-shadow:0 -4px 18px rgba(0,0,0,.07);z-index:200}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 14px;border-radius:11px;font-size:11px;font-weight:700;color:#aaa;transition:all .18s}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 16px;border-radius:16px;font-size:11px;font-weight:700;color:#aaa;transition:all .2s}
 .nav-item.active{color:var(--or);background:rgba(255,107,53,.08)}
-.nav-icon{font-size:21px}
+.nav-icon{width:26px;height:26px;transition:opacity .2s}
+.nav-icon .outline{opacity:1;transition:opacity .2s}
+.nav-icon .filled{opacity:0;transition:opacity .2s}
+.nav-item.active .nav-icon .outline{opacity:0}
+.nav-item.active .nav-icon .filled{opacity:1}
 
 /* Source badge */
 .source-google{display:inline-flex;align-items:center;gap:4px;background:#F0F4FF;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:#4A90D9;margin-top:4px}
@@ -120,8 +124,8 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
     <div class="logo">
       <span style="font-size:24px">⛽</span>
       <div>
-        <div class="logo-title">Bencinas CL</div>
-        <div class="logo-sub">Precios en tiempo real 🇨🇱</div>
+        <div class="logo-title">Tanque Lleno</div>
+        <div class="logo-sub">El mejor precio cerca de ti 🇨🇱</div>
       </div>
     </div>
     <div id="hdr-right"></div>
@@ -151,10 +155,10 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
         <button class="zoom-btn" onclick="gmapZoom(-1)">−</button>
       </div>
       <button class="locate-btn" id="locate-btn" onclick="locateAndSearch()">📍</button>
-      <div class="report-mode-bar hidden" id="report-mode-bar">📍 Toca una bencinera o el mapa para reportar</div>
+      <div class="report-mode-bar hidden" id="report-mode-bar">📍 Toca una bencinera o el mapa para informar el precio</div>
       <div id="fab-container">
         <button class="fab" id="main-fab" onclick="startPinMode()">
-          <span>➕</span> Reportar precio aquí
+          <span>➕</span> Informar precio aquí
         </button>
       </div>
     </div>
@@ -179,10 +183,10 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
   <!-- REPORT ENTRY VIEW -->
   <div class="view hidden" id="view-report">
     <div class="scroll">
-      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">📍 Reportar precio</div>
+      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">📍 Informar precio</div>
       <div style="color:#999;font-size:13px;margin-bottom:18px">¿Cómo quieres ubicar la estación?</div>
       <div id="report-login-warn" class="hidden" style="background:#FFF8DC;border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--yl)">
-        <div style="font-weight:700;font-size:14px">⚠️ Inicia sesión para reportar</div>
+        <div style="font-weight:700;font-size:14px">⚠️ Inicia sesión para informar un precio</div>
         <button class="btn-p" style="margin-top:10px;width:auto;padding:9px 20px;font-size:13px" onclick="showView('login')">Entrar →</button>
       </div>
       <div class="entry-card" onclick="startPinMode()">
@@ -197,7 +201,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
       </div>
       <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
         <span style="font-size:22px">🏆</span>
-        <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por cada reporte válido</span>
+        <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por cada precio informado</span>
       </div>
     </div>
   </div>
@@ -217,7 +221,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
       <div style="text-align:center;padding-bottom:22px">
         <div style="font-size:50px">⛽</div>
         <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-top:7px" id="login-title">¡Bienvenido!</div>
-        <div style="color:#999;font-size:13px;margin-top:3px" id="login-sub">Inicia sesión para reportar</div>
+        <div style="color:#999;font-size:13px;margin-top:3px" id="login-sub">Inicia sesión para informar un precio</div>
       </div>
       <div class="login-card">
         <div class="field hidden" id="name-field">
@@ -237,10 +241,64 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 
   <!-- BOTTOM NAV -->
   <div class="bnav">
-    <div class="nav-item active" id="nav-map"     onclick="showView('map')">     <span class="nav-icon">🗺️</span>Mapa</div>
-    <div class="nav-item"        id="nav-ranking" onclick="showView('ranking')"> <span class="nav-icon">🏆</span>Ranking</div>
-    <div class="nav-item"        id="nav-report"  onclick="showView('report')">  <span class="nav-icon">➕</span>Reportar</div>
-    <div class="nav-item"        id="nav-profile" onclick="showView('profile')"> <span class="nav-icon">👤</span>Perfil</div>
+
+    <!-- Mapa -->
+    <div class="nav-item active" id="nav-map" onclick="showView('map')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- two-tone: shape fill + outline path -->
+        <g class="filled">
+          <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor" opacity=".9"/>
+        </g>
+        <g class="outline">
+          <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor" opacity=".4"/>
+        </g>
+      </svg>
+      Mapa
+    </div>
+
+    <!-- Ranking -->
+    <div class="nav-item" id="nav-ranking" onclick="showView('ranking')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g class="filled">
+          <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor" opacity=".9"/>
+        </g>
+        <g class="outline">
+          <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor" opacity=".4"/>
+        </g>
+      </svg>
+      Ranking
+    </div>
+
+    <!-- Informar -->
+    <div class="nav-item" id="nav-report" onclick="showView('report')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g class="filled">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor" opacity=".3"/>
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor" opacity=".9"/>
+          <path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor"/>
+        </g>
+        <g class="outline">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor" opacity=".4"/>
+          <path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor" opacity=".4"/>
+        </g>
+      </svg>
+      Informar
+    </div>
+
+    <!-- Perfil -->
+    <div class="nav-item" id="nav-profile" onclick="showView('profile')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g class="filled">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" opacity=".9"/>
+          <circle cx="12" cy="8" r="4" fill="currentColor" opacity=".3"/>
+        </g>
+        <g class="outline">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 8c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm-6 4c.22-1.07 3.03-2 6-2s5.78.93 6 2H6z" fill="currentColor" opacity=".4"/>
+        </g>
+      </svg>
+      Perfil
+    </div>
+
   </div>
 </div>
 
@@ -297,7 +355,7 @@ function makePlaceIcon(name) {
     <rect x="1" y="1" width="${w-2}" height="32" rx="8" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
     <text x="12" y="14" font-size="12" font-family="Arial" fill="#333" font-weight="bold">⛽</text>
     <text x="28" y="14" font-size="10" font-family="Arial" fill="#333" font-weight="bold">${short}</text>
-    <text x="28" y="26" font-size="8" font-family="Arial" fill="#aaa">Sin precio · tap para reportar</text>
+    <text x="28" y="26" font-size="8" font-family="Arial" fill="#aaa">Sin precio · toca para informar</text>
     <polygon points="${w/2-6},33 ${w/2+6},33 ${w/2},41" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
   </svg>`;
   return {
@@ -470,12 +528,12 @@ function onPlaceClick(place) {
     <div style="background:#f8f8f8;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
       <div style="font-size:28px;margin-bottom:6px">💰</div>
       <div style="font-weight:800;font-size:15px;margin-bottom:4px">Sin precio reportado aún</div>
-      <div style="color:#999;font-size:13px">¡Sé el primero en reportar el precio aquí!</div>
+      <div style="color:#999;font-size:13px">¡Sé el primero en informar el precio aquí!</div>
     </div>
     <div style="display:flex;gap:9px">
       <button class="btn-s" style="flex:1;padding:12px" onclick="closeSheet('stn-overlay')">Cerrar</button>
       <button class="btn-p" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px" onclick="closeSheet('stn-overlay');reportFromPlace(${place.geometry.location.lat()},${place.geometry.location.lng()},'${encodeURIComponent(place.name)}','${encodeURIComponent(place.vicinity||"")}')">
-        ➕ Reportar precio
+        ➕ Informar precio
       </button>
     </div>`;
   openSheet("stn-overlay");
@@ -573,7 +631,7 @@ function exitPinMode() {
   document.getElementById("zoom-ctrl").style.display="";
   document.getElementById("locate-btn").style.display="";
   document.getElementById("fab-container").innerHTML =
-    `<button class="fab" onclick="startPinMode()"><span>➕</span> Reportar precio aquí</button>`;
+    `<button class="fab" onclick="startPinMode()"><span>➕</span> Informar precio aquí</button>`;
   gmap.setOptions({draggableCursor:null});
 }
 
@@ -598,7 +656,7 @@ function openReportSheet(lat, lng, prefillName="", prefillAddr="") {
   const regionOpts = REGIONS.map(r=>`<option value="${r}"${r==="Metropolitana"?" selected":""}>${r}</option>`).join("");
   const fuelOpts   = FUEL_TYPES.map(f=>`<option value="${f}"${f===selectedFuel?" selected":""}>${f}</option>`).join("");
   document.getElementById("rep-content").innerHTML = `
-    <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px">⛽ Reportar precio</div>
+    <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px">⛽ Informar precio</div>
     <div style="color:#999;font-size:13px;margin-bottom:14px">Completa los datos de la estación</div>
     <div class="loc-info">
       <span style="font-size:22px">📍</span>
@@ -618,43 +676,69 @@ function openReportSheet(lat, lng, prefillName="", prefillAddr="") {
     <div class="field"><label>🗺️ Región</label><select class="sel" id="r-region">${regionOpts}</select></div>
     <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;margin-bottom:18px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
       <span style="font-size:22px">🏆</span>
-      <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por reportar</span>
+      <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por informar</span>
     </div>
-    <button class="btn-p" onclick="submitReport(${lat},${lng})">Reportar precio ⛽</button>
+    <button class="btn-p" onclick="submitReport(${lat},${lng})">Informar precio ⛽</button>
     <button class="btn-s" onclick="closeSheet('rep-overlay')">Cancelar</button>`;
   openSheet("rep-overlay");
 }
 
-function submitReport(lat, lng) {
-  const name  = document.getElementById("r-name").value.trim();
-  const addr  = document.getElementById("r-addr").value.trim();
-  const fuel  = document.getElementById("r-fuel").value;
-  const price = parseInt(document.getElementById("r-price").value);
-  const region= document.getElementById("r-region").value;
+async function submitReport(lat, lng) {
+  const name   = document.getElementById("r-name").value.trim();
+  const addr   = document.getElementById("r-addr").value.trim();
+  const fuel   = document.getElementById("r-fuel").value;
+  const price  = parseInt(document.getElementById("r-price").value);
+  const region = document.getElementById("r-region").value;
   if (!name) { showToast("Ingresa el nombre de la estación","err"); return; }
   if (!price||price<500||price>3000) { showToast("Precio inválido (500–3000)","err"); return; }
-  const ns = {
-    id:Date.now(), name, lat, lng,
-    address:addr||"Sin dirección", region,
-    prices:{[fuel]:price},
-    placeId: pendingPlace?.place_id || null,
-    by:currentUser.name, ago:"ahora", v:1, fromGoogle:!!pendingPlace
-  };
-  stations.unshift(ns);
-  currentUser.reports++; currentUser.pts=(currentUser.pts||0)+10;
-  pendingPlace=null;
-  closeSheet("rep-overlay");
-  // Remove matching Google place overlay (now has price)
-  placeOverlays = placeOverlays.filter(o=>{
-    const match = o.place.place_id===ns.placeId ||
-      (Math.abs(o.place.geometry.location.lat()-lat)<0.0005 && Math.abs(o.place.geometry.location.lng()-lng)<0.0005);
-    if (match) o.setMap(null);
-    return !match;
-  });
-  renderMarkers();
-  gmap.panTo({lat,lng});
-  showToast("¡Precio reportado! +10 pts 🏆");
-  renderHeader();
+
+  const btn = document.querySelector("#rep-overlay .btn-p");
+  if (btn) { btn.textContent = "⏳ Guardando..."; btn.disabled = true; }
+
+  try {
+    // Guardar precio en Firestore
+    await fbDb.collection("precios").add({
+      nombre:         name,
+      direccion:      addr || "Sin dirección",
+      region,
+      combustible:    fuel,
+      precio:         price,
+      lat, lng,
+      placeId:        pendingPlace?.place_id || null,
+      usuarioId:      currentUser.uid,
+      usuarioNombre:  currentUser.name,
+      votos:          1,
+      timestamp:      firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Actualizar puntos y reportes del usuario en Firestore
+    await fbDb.collection("usuarios").doc(currentUser.uid).update({
+      reportes: firebase.firestore.FieldValue.increment(1),
+      puntos:   firebase.firestore.FieldValue.increment(10)
+    });
+
+    currentUser.reports++;
+    currentUser.pts = (currentUser.pts||0) + 10;
+    pendingPlace = null;
+
+    // Quitar overlay de Google Places si corresponde
+    placeOverlays = placeOverlays.filter(o => {
+      const match = (pendingPlace && o.place.place_id === pendingPlace.place_id) ||
+        (Math.abs(o.place.geometry.location.lat()-lat)<0.0005 &&
+         Math.abs(o.place.geometry.location.lng()-lng)<0.0005);
+      if (match) o.setMap(null);
+      return !match;
+    });
+
+    closeSheet("rep-overlay");
+    gmap.panTo({lat, lng});
+    showToast("¡Precio informado! +10 pts 🏆");
+    renderHeader();
+
+  } catch(e) {
+    showToast("Error al guardar: " + e.message, "err");
+    if (btn) { btn.textContent = "Informar precio ⛽"; btn.disabled = false; }
+  }
 }
 
 // ── STATION DETAIL SHEET ──────────────────────────────────────────────────────
@@ -733,22 +817,49 @@ function toggleAuth() {
   isReg=!isReg;
   document.getElementById("name-field").classList.toggle("hidden",!isReg);
   document.getElementById("login-title").textContent=isReg?"Crear cuenta":"¡Bienvenido!";
-  document.getElementById("login-sub").textContent=isReg?"Únete a BencinaCL":"Inicia sesión para reportar";
+  document.getElementById("login-sub").textContent=isReg?"Únete a Tanque Lleno":"Inicia sesión para informar un precio";
   document.getElementById("login-submit-btn").textContent=isReg?"🚀 Crear cuenta":"🔑 Iniciar sesión";
   document.getElementById("toggle-link").textContent=isReg?"Inicia sesión":"Regístrate";
   document.querySelector(".toggle-auth").childNodes[0].nodeValue=isReg?"¿Ya tienes cuenta? ":"¿No tienes cuenta? ";
 }
 
-function doLogin() {
-  const email=document.getElementById("f-email").value.trim();
-  const pass=document.getElementById("f-pass").value;
-  const name=document.getElementById("f-name").value.trim();
-  if(!email||!pass){showToast("Completa todos los campos","err");return;}
-  if(isReg&&!name){showToast("Ingresa tu nombre","err");return;}
-  const n=isReg?name:email.split("@")[0];
-  currentUser={name:n,email,av:n[0].toUpperCase(),reports:isReg?0:5,pts:isReg?0:50,joined:"Marzo 2026"};
-  renderHeader(); showView("map");
-  showToast(isReg?`¡Bienvenido, ${n}! 🎉`:`¡Hola, ${n}! 👋`);
+async function doLogin() {
+  const email = document.getElementById("f-email").value.trim();
+  const pass  = document.getElementById("f-pass").value;
+  const name  = document.getElementById("f-name").value.trim();
+  if (!email||!pass) { showToast("Completa todos los campos","err"); return; }
+  if (isReg&&!name) { showToast("Ingresa tu nombre","err"); return; }
+
+  const btn = document.getElementById("login-submit-btn");
+  btn.textContent = "⏳ Cargando..."; btn.disabled = true;
+
+  try {
+    let fbUser;
+    if (isReg) {
+      const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
+      fbUser = cred.user;
+      // Guardar perfil en Firestore
+      await fbDb.collection("usuarios").doc(fbUser.uid).set({
+        nombre: name, email, puntos: 0, reportes: 0,
+        creado: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      const cred = await fbAuth.signInWithEmailAndPassword(email, pass);
+      fbUser = cred.user;
+    }
+    // onAuthStateChanged se encarga del resto
+  } catch(e) {
+    const msgs = {
+      "auth/email-already-in-use": "Ese email ya está registrado",
+      "auth/wrong-password": "Contraseña incorrecta",
+      "auth/user-not-found": "No existe una cuenta con ese email",
+      "auth/weak-password": "La contraseña debe tener al menos 6 caracteres",
+      "auth/invalid-email": "Email inválido",
+    };
+    showToast(msgs[e.code] || "Error: " + e.message, "err");
+    btn.textContent = isReg ? "🚀 Crear cuenta" : "🔑 Iniciar sesión";
+    btn.disabled = false;
+  }
 }
 
 // ── PROFILE ───────────────────────────────────────────────────────────────────
@@ -759,7 +870,7 @@ function renderProfile() {
     <div class="prof-av">${u.av}</div>
     <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800">${u.name}</div>
     <div style="opacity:.8;font-size:13px;margin-top:2px">${u.email}</div>`;
-  document.getElementById("prof-stats").innerHTML=[["⛽",u.reports,"Reportes"],["🏆",u.pts||0,"Puntos"],["⭐",Math.min(5,Math.floor(u.reports/2)+1),"Estrellas"]].map(([ic,v,l])=>`
+  document.getElementById("prof-stats").innerHTML=[["⛽",u.reports,"Informados"],["🏆",u.pts||0,"Puntos"],["⭐",Math.min(5,Math.floor(u.reports/2)+1),"Estrellas"]].map(([ic,v,l])=>`
     <div class="stat-card"><div style="font-size:20px">${ic}</div><div style="font-weight:900;font-size:20px;color:var(--or)">${v}</div><div style="font-size:11px;color:#999;font-weight:600">${l}</div></div>`).join("");
   const pct=Math.min(100,(u.reports/20)*100);
   document.getElementById("prof-body").innerHTML=`
@@ -771,12 +882,18 @@ function renderProfile() {
       <div style="background:#f0f0f0;border-radius:99px;height:9px;overflow:hidden">
         <div style="background:linear-gradient(90deg,var(--or),var(--yl));height:100%;border-radius:99px;width:${pct}%"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:#999"><span>${u.reports} reportes</span><span>Meta: 20</span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:#999"><span>${u.reports} precios informados</span><span>Meta: 20</span></div>
     </div>
-    <button class="btn-p" onclick="showView('report')">⛽ Reportar nuevo precio</button>
+    <button class="btn-p" onclick="showView('report')">⛽ Informar nuevo precio</button>
     <button class="btn-s" onclick="doLogout()">Cerrar sesión</button>`;
 }
-function doLogout(){currentUser=null;renderHeader();showView("map");showToast("¡Hasta luego! 👋");}
+
+async function doLogout() {
+  await fbAuth.signOut();
+  currentUser = null;
+  renderHeader(); showView("map");
+  showToast("¡Hasta luego! 👋");
+}
 
 // ── HEADER ────────────────────────────────────────────────────────────────────
 function renderHeader() {
@@ -822,8 +939,89 @@ function gmapZoom(d){if(gmap) gmap.setZoom(gmap.getZoom()+d);}
 renderHeader();
 </script>
 
+<!-- Firebase SDKs (compat version — funciona sin bundler) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+// ── FIREBASE INIT ─────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyDOfnZa7X4XmSv9ZOTbRufHu7IIEmz7sNk",
+  authDomain: "bencinas-cl-82827.firebaseapp.com",
+  projectId: "bencinas-cl-82827",
+  storageBucket: "bencinas-cl-82827.firebasestorage.app",
+  messagingSenderId: "1068643199062",
+  appId: "1:1068643199062:web:01697d94a73d432b82b3f7",
+  measurementId: "G-9KBCC48EJN"
+};
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbDb   = firebase.firestore();
+
+// ── ESCUCHAR CAMBIOS DE SESIÓN ────────────────────────────────────────────────
+fbAuth.onAuthStateChanged(async fbUser => {
+  if (fbUser) {
+    // Leer perfil desde Firestore
+    const doc = await fbDb.collection("usuarios").doc(fbUser.uid).get();
+    const data = doc.exists ? doc.data() : {};
+    currentUser = {
+      uid:     fbUser.uid,
+      name:    data.nombre || fbUser.email.split("@")[0],
+      email:   fbUser.email,
+      av:      (data.nombre || fbUser.email)[0].toUpperCase(),
+      reports: data.reportes || 0,
+      pts:     data.puntos   || 0,
+      joined:  data.creado?.toDate().toLocaleDateString("es-CL", {month:"long",year:"numeric"}) || "Recién llegado"
+    };
+    renderHeader();
+    showToast(`¡Hola, ${currentUser.name.split(" ")[0]}! 👋`);
+    showView("map");
+  } else {
+    currentUser = null;
+    renderHeader();
+  }
+});
+
+// ── CARGAR PRECIOS DESDE FIRESTORE EN TIEMPO REAL ─────────────────────────────
+fbDb.collection("precios")
+  .orderBy("timestamp", "desc")
+  .limit(200)
+  .onSnapshot(snapshot => {
+    stations = [];
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      stations.push({
+        id:       doc.id,
+        name:     d.nombre,
+        lat:      d.lat,
+        lng:      d.lng,
+        address:  d.direccion || "Sin dirección",
+        region:   d.region    || "Metropolitana",
+        prices:   { [d.combustible]: d.precio },
+        placeId:  d.placeId   || null,
+        by:       d.usuarioNombre || "Anónimo",
+        ago:      d.timestamp ? timeAgo(d.timestamp.toDate()) : "ahora",
+        v:        d.votos     || 1,
+        fromGoogle: !!d.placeId
+      });
+    });
+    if (gmap) renderMarkers();
+    if (document.getElementById("view-ranking").classList.contains("active")) renderRanking();
+  });
+
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - date) / 1000);
+  if (diff < 60)   return "ahora";
+  if (diff < 3600) return `hace ${Math.floor(diff/60)}m`;
+  if (diff < 86400) return `hace ${Math.floor(diff/3600)}h`;
+  return `hace ${Math.floor(diff/86400)}d`;
+}
+</script>
+
 <script async defer
   src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6_MOIgbB-2oi75xsal6HIj344t2b7ous&libraries=places&callback=initMap">
 </script>
+</body>
+</html>
 </body>
 </html>
