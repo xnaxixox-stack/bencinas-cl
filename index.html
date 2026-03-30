@@ -408,7 +408,7 @@ let placeOverlays = [];      // GooglePlaceOverlay instances (no price yet)
 let reportMarker  = null;
 let userMarker    = null;
 let currentUser   = null;
-let selectedFuel  = "95";
+let selectedFuel  = "Todos";
 let reportMode    = false;
 let isReg         = false;
 let pendingLL     = null;
@@ -466,7 +466,38 @@ function makePriceIcon(price, color, cheap) {
   };
 }
 
-// ── GOOGLE MAPS INIT ──────────────────────────────────────────────────────────
+// ── ICON: todos los precios ────────────────────────────────────────────────────
+function makeAllPricesIcon(prices, pinColor) {
+  const entries = Object.entries(prices);
+  if (!entries.length) return makePriceIcon(0, "#999", false);
+
+  const lineH = 16;
+  const pad   = 10;
+  const w     = 130;
+  const h     = pad + entries.length * lineH + pad + 10; // +10 flecha
+
+  const rows = entries.map(([fuel, price], i) => {
+    const col = FUEL_COLORS[fuel] || "#888";
+    const y   = pad + i * lineH + lineH * 0.7;
+    return `
+      <circle cx="10" cy="${y}" r="4" fill="${col}"/>
+      <text x="18" y="${y+4}" font-size="9" font-family="Arial" font-weight="700" fill="${col}">${fuel}</text>
+      <text x="${w-8}" y="${y+4}" font-size="10" font-family="Arial" font-weight="900" fill="#1a1a2e" text-anchor="end">$${price.toLocaleString("es-CL")}</text>`;
+  }).join("");
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+    <rect x="0" y="0" width="${w}" height="${h-10}" rx="10" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
+    ${rows}
+    <polygon points="${w/2-6},${h-10} ${w/2+6},${h-10} ${w/2},${h}" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
+    <polygon points="${w/2-5},${h-11} ${w/2+5},${h-11} ${w/2},${h-2}" fill="white"/>
+  </svg>`;
+
+  return {
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+    anchor: new google.maps.Point(w/2, h),
+    scaledSize: new google.maps.Size(w, h),
+  };
+}
 function initMap() {
   gmap = new google.maps.Map(document.getElementById("gmap-el"), {
     center: { lat:-33.4489, lng:-70.6693 },
@@ -549,34 +580,64 @@ function searchNearbyStations() {
 function renderMarkers() {
   overlays.forEach(m => m.setMap(null));
   overlays = [];
-  const q   = (document.getElementById("search-inp")?.value || "").toLowerCase();
-  const vis = stations.filter(s => s.prices[selectedFuel] &&
-    (!q || s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)));
-  const min = vis.length ? Math.min(...vis.map(s => s.prices[selectedFuel])) : 0;
+  const q          = (document.getElementById("search-inp")?.value || "").toLowerCase();
   const myPinColor = currentUser?.cosmetics?.pinColor || null;
-  vis.forEach(s => {
-    const cheap  = s.prices[selectedFuel] === min;
-    const isMine = currentUser && s.by === currentUser.name;
-    const color  = isMine && myPinColor ? myPinColor : FUEL_COLORS[selectedFuel];
-    const marker = new google.maps.Marker({
-      position: { lat: s.lat, lng: s.lng },
-      map: gmap,
-      icon: makePriceIcon(s.prices[selectedFuel], color, cheap),
-      title: s.name,
-      zIndex: cheap ? 20 : 10,
+
+  if (selectedFuel === "Todos") {
+    // Agrupar estaciones por ubicación (misma lat/lng aprox)
+    const groups = {};
+    stations.forEach(s => {
+      if (q && !s.name.toLowerCase().includes(q) && !s.address.toLowerCase().includes(q)) return;
+      const key = `${s.lat.toFixed(4)}_${s.lng.toFixed(4)}`;
+      if (!groups[key]) groups[key] = { ...s, prices: {} };
+      Object.assign(groups[key].prices, s.prices);
     });
-    marker.addListener("click", () => showStationSheet(s));
-    overlays.push(marker);
-  });
+
+    Object.values(groups).forEach(s => {
+      const isMine = currentUser && s.by === currentUser.name;
+      const color  = isMine && myPinColor ? myPinColor : "#1a1a2e";
+      const marker = new google.maps.Marker({
+        position: { lat: s.lat, lng: s.lng },
+        map: gmap,
+        icon: makeAllPricesIcon(s.prices, color),
+        title: s.name,
+        zIndex: 10,
+      });
+      marker.addListener("click", () => showStationSheet(s));
+      overlays.push(marker);
+    });
+  } else {
+    const vis = stations.filter(s => s.prices[selectedFuel] &&
+      (!q || s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)));
+    const min = vis.length ? Math.min(...vis.map(s => s.prices[selectedFuel])) : 0;
+    vis.forEach(s => {
+      const cheap  = s.prices[selectedFuel] === min;
+      const isMine = currentUser && s.by === currentUser.name;
+      const color  = isMine && myPinColor ? myPinColor : FUEL_COLORS[selectedFuel];
+      const marker = new google.maps.Marker({
+        position: { lat: s.lat, lng: s.lng },
+        map: gmap,
+        icon: makePriceIcon(s.prices[selectedFuel], color, cheap),
+        title: s.name,
+        zIndex: cheap ? 20 : 10,
+      });
+      marker.addListener("click", () => showStationSheet(s));
+      overlays.push(marker);
+    });
+  }
 }
 
 function filterOverlays() { renderMarkers(); }
 
 // ── FUEL PILLS ────────────────────────────────────────────────────────────────
 function renderFuelPills() {
-  document.getElementById("fuel-pills").innerHTML = FUEL_TYPES.map(f =>
-    `<button class="pill${f===selectedFuel?" active":""}" style="${f===selectedFuel?`background:${FUEL_COLORS[f]};border-color:${FUEL_COLORS[f]}`:""}" onclick="selectFuel('${f}')">${f}</button>`
-  ).join("");
+  const all = ["Todos", ...FUEL_TYPES];
+  document.getElementById("fuel-pills").innerHTML = all.map(f => {
+    const active  = f === selectedFuel;
+    const color   = f === "Todos" ? "#1a1a2e" : FUEL_COLORS[f];
+    const bgStyle = active ? `background:${color};border-color:${color};color:#fff` : "";
+    return `<button class="pill${active?" active":""}" style="${bgStyle}" onclick="selectFuel('${f}')">${f==="Todos"?"🗺️ Todos":f}</button>`;
+  }).join("");
 }
 function selectFuel(f) { selectedFuel = f; renderFuelPills(); renderMarkers(); }
 
@@ -877,7 +938,7 @@ function showStationSheet(s) {
 
 // ── RANKING ───────────────────────────────────────────────────────────────────
 function setupRankingSelects() {
-  document.getElementById("rank-fuel").innerHTML = FUEL_TYPES.map(f=>`<option value="${f}"${f===selectedFuel?" selected":""}>${f}</option>`).join("");
+  document.getElementById("rank-fuel").innerHTML = FUEL_TYPES.map(f=>`<option value="${f}"${f==="95"?" selected":""}>${f}</option>`).join("");
   document.getElementById("rank-region").innerHTML =
     `<option value="Todas">Todas las regiones</option>`+REGIONS.map(r=>`<option value="${r}">${r}</option>`).join("");
 }
