@@ -760,6 +760,7 @@ function openReportSheet(lat, lng, prefillName="", prefillAddr="") {
 }
 
 async function submitReport(lat, lng) {
+  if (!currentUser) { showToast("Debes iniciar sesión primero","err"); closeSheet("rep-overlay"); showView("login"); return; }
   const name   = document.getElementById("r-name").value.trim();
   const addr   = document.getElementById("r-addr").value.trim();
   const fuel   = document.getElementById("r-fuel").value;
@@ -772,22 +773,52 @@ async function submitReport(lat, lng) {
   if (btn) { btn.textContent = "⏳ Guardando..."; btn.disabled = true; }
 
   try {
-    // Guardar precio en Firestore
-    await fbDb.collection("precios").add({
-      nombre:         name,
-      direccion:      addr || "Sin dirección",
-      region,
-      combustible:    fuel,
-      precio:         price,
-      lat, lng,
-      placeId:        pendingPlace?.place_id || null,
-      usuarioId:      currentUser.uid,
-      usuarioNombre:  currentUser.name,
-      votos:          1,
-      timestamp:      firebase.firestore.FieldValue.serverTimestamp()
-    });
+    // Buscar si ya existe un precio para esta estación y combustible
+    let existingQuery;
+    if (pendingPlace?.place_id) {
+      existingQuery = await fbDb.collection("precios")
+        .where("combustible", "==", fuel)
+        .where("placeId", "==", pendingPlace.place_id)
+        .limit(1).get();
+    } else {
+      existingQuery = await fbDb.collection("precios")
+        .where("combustible", "==", fuel)
+        .where("lat", "==", lat)
+        .where("lng", "==", lng)
+        .limit(1).get();
+    }
+    const existing = existingQuery;
 
-    // Actualizar puntos y reportes del usuario en Firestore
+    if (!existing.empty) {
+      // Actualizar el documento existente
+      await existing.docs[0].ref.update({
+        precio:        price,
+        nombre:        name,
+        direccion:     addr || "Sin dirección",
+        region,
+        usuarioId:     currentUser.uid,
+        usuarioNombre: currentUser.name,
+        votos:         firebase.firestore.FieldValue.increment(1),
+        timestamp:     firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      // Crear nuevo documento
+      await fbDb.collection("precios").add({
+        nombre:        name,
+        direccion:     addr || "Sin dirección",
+        region,
+        combustible:   fuel,
+        precio:        price,
+        lat, lng,
+        placeId:       pendingPlace?.place_id || null,
+        usuarioId:     currentUser.uid,
+        usuarioNombre: currentUser.name,
+        votos:         1,
+        timestamp:     firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // Actualizar puntos y reportes del usuario
     await fbDb.collection("usuarios").doc(currentUser.uid).update({
       reportes: firebase.firestore.FieldValue.increment(1),
       puntos:   firebase.firestore.FieldValue.increment(10)
@@ -811,7 +842,7 @@ async function submitReport(lat, lng) {
 
     closeSheet("rep-overlay");
     gmap.panTo({lat, lng});
-    showToast("¡Precio informado! +10 pts 🏆");
+    showToast(existing.empty ? "¡Precio informado! +10 pts 🏆" : "¡Precio actualizado! +10 pts 🏆");
     renderHeader();
 
   } catch(e) {
