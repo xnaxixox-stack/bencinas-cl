@@ -9,25 +9,80 @@
 <link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#FF6B35"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Tanque Lleno"/>
-<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
-<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png"/>
-<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png"/>
-<meta name="description" content="Precios de bencina en tiempo real en Chile. Compara precios, encuentra la más barata cerca de ti."/>
-<meta name="keywords" content="bencina, precio, chile, copec, shell, petrobras, combustible"/>
-<!-- Open Graph -->
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="application-name" content="Tanque Lleno"/>
+<meta name="description" content="Precios de bencina en tiempo real 🇨🇱"/>
+
+<!-- Open Graph (preview al compartir) -->
 <meta property="og:title" content="Tanque Lleno ⛽"/>
-<meta property="og:description" content="Precios de bencina en tiempo real en Chile"/>
+<meta property="og:description" content="Encuentra los precios de bencina más baratos cerca de ti"/>
 <meta property="og:type" content="website"/>
-<meta property="og:image" content="/icons/icon-512.png"/>
+
+<!-- Apple touch icon inline SVG -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23FF6B35'/><text y='135' x='90' font-size='100' text-anchor='middle'>⛽</text></svg>"/>
+
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:#F0F4FF;color:#1a1a2e}
 :root{--or:#FF6B35;--yl:#F5A623;--gr:#00C896;--bl:#4A90D9;--re:#FF4757}
+
+/* ── BASE ── */
 #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+#sidebar{display:none}
+#main-content{display:contents}
+#desktop-topbar{display:none}
+
+/* ── DESKTOP ≥900px ── */
+@media(min-width:900px){
+  html,body{overflow:hidden;background:#eef2f7}
+  #app{max-width:100%;flex-direction:row;height:100vh}
+
+  /* Sidebar */
+  #sidebar{
+    display:flex;flex-direction:column;
+    width:220px;flex-shrink:0;
+    background:linear-gradient(180deg,#FF6B35,#F5A623);
+    padding:24px 14px 20px;
+    box-shadow:4px 0 20px rgba(255,107,53,.25);
+    z-index:100;
+  }
+
+  /* Sidebar nav items */
+  #sidebar .nav-item{
+    display:flex;flex-direction:row;align-items:center;
+    gap:11px;padding:11px 14px;border-radius:12px;
+    font-size:13px;font-weight:700;
+    color:rgba(255,255,255,.75);cursor:pointer;
+    transition:all .18s;width:100%;
+  }
+  #sidebar .nav-item.active{color:#fff;background:rgba(255,255,255,.22)}
+  #sidebar .nav-item:hover:not(.active){color:#fff;background:rgba(255,255,255,.12)}
+  #sidebar .nav-icon{width:22px;height:22px;flex-shrink:0}
+
+  /* Main content area */
+  #main-content{display:flex;flex-direction:column;flex:1;overflow:hidden;background:#F0F4FF}
+
+  /* Desktop topbar */
+  #desktop-topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:13px 24px;background:#fff;
+    border-bottom:1px solid #f0f0f0;flex-shrink:0;
+    box-shadow:0 2px 8px rgba(0,0,0,.05);
+  }
+
+  /* Hide mobile-only elements */
+  .hdr{display:none!important}
+  .bnav{display:none!important}
+
+  /* Views fill available space */
+  .view{flex:1}
+  .scroll{padding:24px}
+  .filter-bar{padding:12px 24px 10px}
+  .stats-grid{padding:20px 24px}
+}
 
 /* Header */
 .hdr{background:linear-gradient(135deg,var(--or),var(--yl));padding:11px 16px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 20px rgba(255,107,53,.35);z-index:200}
@@ -138,17 +193,58 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
 <body>
 <div id="app">
 
-  <!-- HEADER -->
-  <div class="hdr">
-    <div class="logo">
-      <span style="font-size:24px">⛽</span>
+  <!-- SIDEBAR (desktop only — bottom nav se convierte en sidebar via CSS) -->
+  <div id="sidebar">
+    <div style="display:flex;align-items:center;gap:9px;margin-bottom:32px;padding:0 4px">
+      <span style="font-size:28px">⛽</span>
       <div>
-        <div class="logo-title">Tanque Lleno</div>
-        <div class="logo-sub">El mejor precio cerca de ti 🇨🇱</div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;line-height:1">Tanque Lleno</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600;margin-top:2px">Precios en tiempo real 🇨🇱</div>
       </div>
     </div>
-    <div id="hdr-right"></div>
+    <!-- Nav items sidebar -->
+    <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+      <div class="nav-item active" id="snav-map" onclick="showView('map')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor"/></svg>
+        Mapa
+      </div>
+      <div class="nav-item" id="snav-ranking" onclick="showView('ranking')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor"/></svg>
+        Ranking
+      </div>
+      <div class="nav-item" id="snav-report" onclick="showView('report')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor"/><path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor"/></svg>
+        Informar precio
+      </div>
+      <div class="nav-item" id="snav-profile" onclick="showView('profile')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>
+        Perfil
+      </div>
+    </div>
+    <!-- Usuario sidebar -->
+    <div id="sidebar-user" style="border-top:1px solid rgba(255,255,255,.2);padding-top:16px;margin-top:16px"></div>
   </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="main-content">
+
+    <!-- Topbar desktop -->
+    <div id="desktop-topbar">
+      <div id="desktop-topbar-title" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#1a1a2e">🗺️ Mapa</div>
+      <div id="hdr-right"></div>
+    </div>
+
+    <!-- HEADER mobile -->
+    <div class="hdr">
+      <div class="logo">
+        <span style="font-size:24px">⛽</span>
+        <div>
+          <div class="logo-title">Tanque Lleno</div>
+          <div class="logo-sub">El mejor precio cerca de ti 🇨🇱</div>
+        </div>
+      </div>
+      <div id="hdr-right-mobile"></div>
+    </div>
 
   <!-- MAP VIEW -->
   <div class="view" id="view-map">
@@ -286,67 +382,8 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
   <!-- BOTTOM NAV -->
   <div class="bnav">
 
-    <!-- Mapa -->
-    <div class="nav-item active" id="nav-map" onclick="showView('map')">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- two-tone: shape fill + outline path -->
-        <g class="filled">
-          <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor" opacity=".9"/>
-        </g>
-        <g class="outline">
-          <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor" opacity=".4"/>
-        </g>
-      </svg>
-      Mapa
-    </div>
-
-    <!-- Ranking -->
-    <div class="nav-item" id="nav-ranking" onclick="showView('ranking')">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="filled">
-          <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor" opacity=".9"/>
-        </g>
-        <g class="outline">
-          <path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor" opacity=".4"/>
-        </g>
-      </svg>
-      Ranking
-    </div>
-
-    <!-- Informar -->
-    <div class="nav-item" id="nav-report" onclick="showView('report')">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="filled">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor" opacity=".3"/>
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor" opacity=".9"/>
-          <path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor"/>
-        </g>
-        <g class="outline">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor" opacity=".4"/>
-          <path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor" opacity=".4"/>
-        </g>
-      </svg>
-      Informar
-    </div>
-
-    <!-- Perfil -->
-    <div class="nav-item" id="nav-profile" onclick="showView('profile')">
-      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g class="filled">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor" opacity=".9"/>
-          <circle cx="12" cy="8" r="4" fill="currentColor" opacity=".3"/>
-        </g>
-        <g class="outline">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0-6c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm0 8c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm-6 4c.22-1.07 3.03-2 6-2s5.78.93 6 2H6z" fill="currentColor" opacity=".4"/>
-        </g>
-      </svg>
-      Perfil
-    </div>
-
-  </div>
-</div>
-
-<!-- STATION DETAIL SHEET -->
+  </div><!-- end main-content -->
+</div><!-- end app -->
 <div class="overlay" id="stn-overlay" onclick="closeSheet('stn-overlay')">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="handle"></div>
@@ -550,7 +587,8 @@ function initMap() {
 
   renderFuelPills();
   setupRankingSelects();
-  locateAndSearch(); // auto-locate on start
+  locateAndSearch();
+  window.dispatchEvent(new Event("mapready"));
 }
 
 // ── PLACES SEARCH ─────────────────────────────────────────────────────────────
@@ -1259,7 +1297,41 @@ function checkPass(val) {
     .join("<br>");
 }
 
-// ── COSMETICS ─────────────────────────────────────────────────────────────────
+// ── HEADER ────────────────────────────────────────────────────────────────────
+function renderHeader() {
+  const userHtml = currentUser
+    ? `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showView('profile')">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
+        <div>
+          <div style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</div>
+          <div style="color:rgba(255,255,255,.7);font-size:10px">🏆 ${currentUser.pts||0} pts</div>
+        </div>
+       </div>`
+    : `<button class="hdr-btn" onclick="showView('login')" style="background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.4)">Entrar</button>`;
+
+  // Desktop topbar (derecha)
+  const dt = document.getElementById("hdr-right");
+  if (dt) dt.innerHTML = currentUser
+    ? `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showView('profile')">
+        <div style="font-size:12px;color:#999">🏆 ${currentUser.pts||0} pts</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--yl));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
+        <span style="font-weight:700;font-size:14px">${currentUser.name.split(" ")[0]}</span>
+       </div>`
+    : `<button class="hdr-btn" onclick="showView('login')">Entrar</button>`;
+
+  // Sidebar user (desktop)
+  const su = document.getElementById("sidebar-user");
+  if (su) su.innerHTML = userHtml;
+
+  // Mobile header
+  const mr = document.getElementById("hdr-right-mobile");
+  if (mr) mr.innerHTML = currentUser
+    ? `<div style="display:flex;align-items:center;gap:7px;cursor:pointer" onclick="showView('profile')">
+        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
+        <span style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</span>
+       </div>`
+    : `<button class="hdr-btn" onclick="showView('login')">Entrar</button>`;
+}
 async function equipCosmetic(type, value) {
   if (!currentUser) return;
   if (!currentUser.cosmetics) currentUser.cosmetics = {};
@@ -1287,33 +1359,25 @@ async function removeFavorite(placeId) {
   renderProfile(); showToast("Eliminada de favoritas");
 }
 
-// ── TOGGLE AUTH MODE ──────────────────────────────────────────────────────────
-function renderHeader() {
-  const r = document.getElementById("hdr-right");
-  if (!currentUser) { r.innerHTML=`<button class="hdr-btn" onclick="showView('login')">Entrar</button>`; return; }
-  const eq  = getEquipped();
-  const av  = eq.avatar ? AVATARS.find(a=>a.id===eq.avatar) : null;
-  const fr  = eq.frame  ? FRAMES.find(f=>f.id===eq.frame)   : null;
-  const border = fr ? fr.style : "2px solid rgba(255,255,255,.5)";
-  const glow   = fr?.glow ? `box-shadow:${fr.glow};` : "";
-  const rainbow = fr?.rainbow ? "background:linear-gradient(white,white) padding-box,linear-gradient(135deg,#FF6B35,#FFD700,#00C896,#4A90D9,#9B59B6) border-box;border:2px solid transparent;" : "";
-  r.innerHTML=`<div style="display:flex;align-items:center;gap:7px;cursor:pointer" onclick="showView('profile')">
-    <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;${rainbow||`border:${border};`}${glow}">
-      ${av ? `<span style="font-size:17px">${av.emoji}</span>` : `<span style="color:#fff;font-weight:900;font-size:15px">${currentUser.av}</span>`}
-    </div>
-    <span style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</span>
-  </div>`;
-}
-
 // ── VIEWS ─────────────────────────────────────────────────────────────────────
 const VIEWS=["map","ranking","report","profile","login"];
+const VIEW_TITLES={"map":"🗺️ Mapa","ranking":"🏆 Ranking","report":"📍 Informar precio","profile":"👤 Perfil","login":"🔑 Entrar"};
+
 function showView(name) {
   if(name==="profile"&&!currentUser) name="login";
   VIEWS.forEach(v=>{
     document.getElementById(`view-${v}`).classList.toggle("hidden",v!==name);
+    // Bottom nav (mobile)
     const n=document.getElementById(`nav-${v}`);
     if(n) n.classList.toggle("active",v===name);
+    // Sidebar nav (desktop)
+    const sn=document.getElementById(`snav-${v}`);
+    if(sn) sn.classList.toggle("active",v===name);
   });
+  // Desktop topbar title
+  const tb = document.getElementById("desktop-topbar-title");
+  if(tb) tb.textContent = VIEW_TITLES[name]||"";
+
   if(name==="ranking") renderRanking();
   if(name==="profile") renderProfile();
   if(name==="report") document.getElementById("report-login-warn").classList.toggle("hidden",!!currentUser);
@@ -1335,9 +1399,7 @@ function showToast(msg,type="ok"){
 // ── ZOOM BUTTONS ──────────────────────────────────────────────────────────────
 function gmapZoom(d){if(gmap) gmap.setZoom(gmap.getZoom()+d);}
 
-renderHeader();
-
-// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+// ── PWA: SERVICE WORKER ───────────────────────────────────────────────────────
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js")
@@ -1346,42 +1408,38 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-// ── PWA SHORTCUTS ─────────────────────────────────────────────────────────────
-window.addEventListener("load", () => {
-  const params = new URLSearchParams(window.location.search);
-  const action = params.get("action");
-  if (action === "report")  setTimeout(() => showView("report"),  800);
-  if (action === "ranking") setTimeout(() => showView("ranking"), 800);
-});
-
-// ── INSTALL PROMPT ────────────────────────────────────────────────────────────
+// ── PWA: INSTALL PROMPT ───────────────────────────────────────────────────────
 let deferredPrompt = null;
 window.addEventListener("beforeinstallprompt", e => {
   e.preventDefault();
   deferredPrompt = e;
-  setTimeout(() => { if (deferredPrompt) showInstallBanner(); }, 30000);
+  // Mostrar botón de instalar en el header después de 30s
+  setTimeout(() => {
+    if (!deferredPrompt) return;
+    const r = document.getElementById("hdr-right");
+    if (!r || currentUser) return; // no mostrar si ya está logueado (tiene su avatar)
+    const btn = document.createElement("button");
+    btn.className = "hdr-btn";
+    btn.style.marginRight = "6px";
+    btn.textContent = "📲 Instalar";
+    btn.onclick = async () => {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") showToast("¡App instalada! 🎉");
+      deferredPrompt = null;
+      btn.remove();
+    };
+    r.prepend(btn);
+  }, 30000);
 });
 
-function showInstallBanner() {
-  if (document.getElementById("install-banner")) return;
-  const b = document.createElement("div");
-  b.id = "install-banner";
-  b.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:9998;box-shadow:0 8px 28px rgba(0,0,0,.3);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;white-space:nowrap";
-  b.innerHTML = `<span style="font-size:22px">⛽</span><span>Instala Tanque Lleno</span>
-    <button onclick="installPWA()" style="background:#FF6B35;color:#fff;border:none;border-radius:10px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;font-size:12px">Instalar</button>
-    <button onclick="document.getElementById('install-banner').remove()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:0 4px">×</button>`;
-  document.body.appendChild(b);
-}
+// ── PWA: SHORTCUT ACTIONS ─────────────────────────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+const action    = urlParams.get("action");
+if (action === "report")  window.addEventListener("mapready", () => showView("report"));
+if (action === "ranking") window.addEventListener("mapready", () => showView("ranking"));
 
-async function installPWA() {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  if (outcome === "accepted") showToast("¡Instalando Tanque Lleno! 🎉");
-  deferredPrompt = null;
-  const b = document.getElementById("install-banner");
-  if (b) b.remove();
-}
+renderHeader();
 </script>
 
 <!-- Firebase SDKs (compat version — funciona sin bundler) -->
