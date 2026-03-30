@@ -4,6 +4,24 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>Tanque Lleno ⛽</title>
+
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<meta name="theme-color" content="#FF6B35"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Tanque Lleno"/>
+<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png"/>
+<link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png"/>
+<link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png"/>
+<meta name="description" content="Precios de bencina en tiempo real en Chile. Compara precios, encuentra la más barata cerca de ti."/>
+<meta name="keywords" content="bencina, precio, chile, copec, shell, petrobras, combustible"/>
+<!-- Open Graph -->
+<meta property="og:title" content="Tanque Lleno ⛽"/>
+<meta property="og:description" content="Precios de bencina en tiempo real en Chile"/>
+<meta property="og:type" content="website"/>
+<meta property="og:image" content="/icons/icon-512.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -1318,6 +1336,52 @@ function showToast(msg,type="ok"){
 function gmapZoom(d){if(gmap) gmap.setZoom(gmap.getZoom()+d);}
 
 renderHeader();
+
+// ── SERVICE WORKER ────────────────────────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js")
+      .then(reg => console.log("SW registrado:", reg.scope))
+      .catch(err => console.log("SW error:", err));
+  });
+}
+
+// ── PWA SHORTCUTS ─────────────────────────────────────────────────────────────
+window.addEventListener("load", () => {
+  const params = new URLSearchParams(window.location.search);
+  const action = params.get("action");
+  if (action === "report")  setTimeout(() => showView("report"),  800);
+  if (action === "ranking") setTimeout(() => showView("ranking"), 800);
+});
+
+// ── INSTALL PROMPT ────────────────────────────────────────────────────────────
+let deferredPrompt = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => { if (deferredPrompt) showInstallBanner(); }, 30000);
+});
+
+function showInstallBanner() {
+  if (document.getElementById("install-banner")) return;
+  const b = document.createElement("div");
+  b.id = "install-banner";
+  b.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:9998;box-shadow:0 8px 28px rgba(0,0,0,.3);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;white-space:nowrap";
+  b.innerHTML = `<span style="font-size:22px">⛽</span><span>Instala Tanque Lleno</span>
+    <button onclick="installPWA()" style="background:#FF6B35;color:#fff;border:none;border-radius:10px;padding:6px 14px;font-family:'Nunito',sans-serif;font-weight:700;cursor:pointer;font-size:12px">Instalar</button>
+    <button onclick="document.getElementById('install-banner').remove()" style="background:none;border:none;color:#aaa;cursor:pointer;font-size:18px;padding:0 4px">×</button>`;
+  document.body.appendChild(b);
+}
+
+async function installPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === "accepted") showToast("¡Instalando Tanque Lleno! 🎉");
+  deferredPrompt = null;
+  const b = document.getElementById("install-banner");
+  if (b) b.remove();
+}
 </script>
 
 <!-- Firebase SDKs (compat version — funciona sin bundler) -->
