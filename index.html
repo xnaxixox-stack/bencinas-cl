@@ -234,7 +234,7 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
         <div class="field">
           <label>🔒 Contraseña</label>
           <div style="position:relative">
-            <input class="inp" id="f-pass" placeholder="••••••••" type="password" style="padding-right:44px"/>
+            <input class="inp" id="f-pass" placeholder="••••••••" type="password" style="padding-right:44px" oninput="checkPass(this.value)"/>
             <button onclick="togglePass()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;color:#aaa" id="pass-eye">
               <svg id="eye-show" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -244,6 +244,19 @@ html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background
                 <line x1="1" y1="1" x2="23" y2="23"/>
               </svg>
             </button>
+          </div>
+          <!-- Strength indicator (solo visible en registro) -->
+          <div id="pass-strength" class="hidden" style="margin-top:8px">
+            <div style="display:flex;gap:4px;margin-bottom:5px">
+              <div id="bar1" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
+              <div id="bar2" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
+              <div id="bar3" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
+              <div id="bar4" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span id="pass-label" style="font-size:11px;font-weight:700;color:#aaa"></span>
+              <div id="pass-rules" style="font-size:10px;color:#999;text-align:right;line-height:1.6"></div>
+            </div>
           </div>
         </div>
         <button class="btn-p" id="login-submit-btn" onclick="doLogin()">🔑 Iniciar sesión</button>
@@ -826,14 +839,19 @@ function renderRanking() {
 }
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
+// ── TOGGLE AUTH MODE ──────────────────────────────────────────────────────────
 function toggleAuth() {
   isReg=!isReg;
   document.getElementById("name-field").classList.toggle("hidden",!isReg);
+  document.getElementById("pass-strength").classList.toggle("hidden",!isReg);
   document.getElementById("login-title").textContent=isReg?"Crear cuenta":"¡Bienvenido!";
   document.getElementById("login-sub").textContent=isReg?"Únete a Tanque Lleno":"Inicia sesión para informar un precio";
   document.getElementById("login-submit-btn").textContent=isReg?"🚀 Crear cuenta":"🔑 Iniciar sesión";
   document.getElementById("toggle-link").textContent=isReg?"Inicia sesión":"Regístrate";
   document.querySelector(".toggle-auth").childNodes[0].nodeValue=isReg?"¿Ya tienes cuenta? ":"¿No tienes cuenta? ";
+  // Reset pass field and strength
+  document.getElementById("f-pass").value="";
+  checkPass("");
 }
 
 async function doLogin() {
@@ -842,6 +860,13 @@ async function doLogin() {
   const name  = document.getElementById("f-name").value.trim();
   if (!email||!pass) { showToast("Completa todos los campos","err"); return; }
   if (isReg&&!name) { showToast("Ingresa tu nombre","err"); return; }
+
+  // Validar fortaleza en registro
+  if (isReg) {
+    const rules = [pass.length>=8, /[A-Z]/.test(pass), /[0-9]/.test(pass), /[^A-Za-z0-9]/.test(pass)];
+    const score = rules.filter(Boolean).length;
+    if (score < 3) { showToast("La contraseña es muy débil — agrega mayúsculas, números o símbolos","err"); return; }
+  }
 
   const btn = document.getElementById("login-submit-btn");
   btn.textContent = "⏳ Cargando..."; btn.disabled = true;
@@ -919,7 +944,34 @@ function togglePass() {
   hide.style.display = visible ? "none"  : "block";
 }
 
-// ── HEADER ────────────────────────────────────────────────────────────────────
+// ── PASSWORD STRENGTH ─────────────────────────────────────────────────────────
+function checkPass(val) {
+  if (!isReg) return;
+  const rules = [
+    { ok: val.length >= 8,          text: "8 caracteres mínimo" },
+    { ok: /[A-Z]/.test(val),        text: "Una mayúscula" },
+    { ok: /[0-9]/.test(val),        text: "Un número" },
+    { ok: /[^A-Za-z0-9]/.test(val), text: "Un símbolo (!@#$...)" },
+  ];
+  const score  = rules.filter(r => r.ok).length;
+  const colors = ["#FF4757","#FF6B35","#F5A623","#00C896"];
+  const labels = ["Muy débil","Débil","Regular","Segura 🔒"];
+  const bars   = ["bar1","bar2","bar3","bar4"];
+
+  bars.forEach((id, i) => {
+    document.getElementById(id).style.background = i < score ? colors[score-1] : "#e8e8f0";
+  });
+
+  const lbl = document.getElementById("pass-label");
+  lbl.textContent = val.length ? labels[score-1] || "" : "";
+  lbl.style.color = score > 0 ? colors[score-1] : "#aaa";
+
+  document.getElementById("pass-rules").innerHTML = rules
+    .map(r => `<span style="color:${r.ok?"#00C896":"#ccc"}">${r.ok?"✓":"○"} ${r.text}</span>`)
+    .join("<br>");
+}
+
+// ── TOGGLE AUTH MODE ──────────────────────────────────────────────────────────
 function renderHeader() {
   const r=document.getElementById("hdr-right");
   r.innerHTML=currentUser
