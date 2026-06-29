@@ -1,11 +1,11 @@
 {
-  "name": "PlantaVida",
-  "short_name": "PlantaVida",
-  "description": "Diagnóstico de plantas de interior con IA 🌿",
+  "name": "Tanque Lleno",
+  "short_name": "TanqueLleno",
+  "description": "Precios de bencina en tiempo real 🇨🇱",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2E7D32",
-  "theme_color": "#2E7D32",
+  "background_color": "#FF6B35",
+  "theme_color": "#FF6B35",
   "orientation": "portrait-primary",
   "lang": "es-CL",
   "icons": [
@@ -24,15 +24,15 @@
   ],
   "shortcuts": [
     {
-      "name": "Diagnosticar planta",
-      "short_name": "Diagnosticar",
-      "url": "/"
+      "name": "Informar precio",
+      "short_name": "Informar",
+      "url": "/?action=report"
     },
     {
-      "name": "Ver historial",
-      "short_name": "Historial",
-      "url": "/?screen=history"
+      "name": "Ver ranking",
+      "short_name": "Ranking",
+      "url": "/?action=ranking"
     }
   ],
-  "categories": ["utilities", "lifestyle"]
+  "categories": ["utilities", "navigation"]
 }
