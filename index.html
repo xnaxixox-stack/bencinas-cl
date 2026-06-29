@@ -1,1533 +1,1104 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>Tanque Lleno ⛽</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#2E7D32" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="PlantaVida" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>PlantaVida — Diagnóstico de plantas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!-- PWA -->
-<link rel="manifest" href="/manifest.json"/>
-<meta name="theme-color" content="#FF6B35"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Tanque Lleno"/>
-<meta name="mobile-web-app-capable" content="yes"/>
-<meta name="application-name" content="Tanque Lleno"/>
-<meta name="description" content="Precios de bencina en tiempo real 🇨🇱"/>
+    :root {
+      --green-900: #1B5E20;
+      --green-800: #2E7D32;
+      --green-700: #388E3C;
+      --green-600: #43A047;
+      --green-500: #4CAF50;
+      --green-400: #66BB6A;
+      --green-300: #A5D6A7;
+      --green-100: #E8F5E9;
+      --green-50:  #F1F8E9;
+      --amber-500: #FFC107;
+      --amber-100: #FFF8E1;
+      --red-600:   #E53935;
+      --red-100:   #FFEBEE;
+      --blue-600:  #1E88E5;
+      --blue-100:  #E3F2FD;
+      --text-primary: #1A1A1A;
+      --text-secondary: #555;
+      --text-muted: #888;
+      --bg: #F9FBF7;
+      --surface: #FFFFFF;
+      --border: #D8EDD9;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.12);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.16);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font: 'Inter', system-ui, sans-serif;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
 
-<!-- Open Graph (preview al compartir) -->
-<meta property="og:title" content="Tanque Lleno ⛽"/>
-<meta property="og:description" content="Encuentra los precios de bencina más baratos cerca de ti"/>
-<meta property="og:type" content="website"/>
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text-primary);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
 
-<!-- Apple touch icon inline SVG -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23FF6B35'/><text y='135' x='90' font-size='100' text-anchor='middle'>⛽</text></svg>"/>
+    #app { height: 100%; display: flex; flex-direction: column; }
 
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
-<style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:'Nunito',sans-serif;background:#F0F4FF;color:#1a1a2e}
-:root{--or:#FF6B35;--yl:#F5A623;--gr:#00C896;--bl:#4A90D9;--re:#FF4757}
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--green-800);
+      color: #fff;
+      padding: 14px 20px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .topbar-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+    .topbar-title .leaf { font-size: 1.4rem; }
+    .topbar-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      background: rgba(255,255,255,.15);
+      border: none;
+      border-radius: 50%;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.1rem;
+      transition: background .15s;
+    }
+    .icon-btn:active { background: rgba(255,255,255,.3); }
 
-/* ── BASE ── */
-#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
-#sidebar{display:none}
-#main-content{display:contents}
-#desktop-topbar{display:none}
+    /* ─── SCREENS ─── */
+    .screen { flex: 1; overflow-y: auto; display: none; flex-direction: column; }
+    .screen.active { display: flex; }
 
-/* ── DESKTOP ≥900px ── */
-@media(min-width:900px){
-  html,body{overflow:hidden;background:#eef2f7}
-  #app{max-width:100%;flex-direction:row;height:100vh}
+    /* ─── CAMERA SCREEN ─── */
+    #screen-camera {
+      background: #000;
+      position: relative;
+    }
+    #video-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    #canvas { display: none; }
+    .camera-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .viewfinder {
+      width: min(70vw, 280px);
+      height: min(70vw, 280px);
+      border: 2.5px solid rgba(255,255,255,.7);
+      border-radius: 24px;
+      box-shadow: 0 0 0 9999px rgba(0,0,0,.35);
+      position: relative;
+    }
+    .viewfinder::before, .viewfinder::after,
+    .viewfinder .corner-br, .viewfinder .corner-bl {
+      content: '';
+      position: absolute;
+      width: 22px; height: 22px;
+      border-color: #fff;
+      border-style: solid;
+    }
+    .viewfinder::before    { top: -2px; left: -2px; border-width: 3px 0 0 3px; border-radius: 6px 0 0 0; }
+    .viewfinder::after     { top: -2px; right: -2px; border-width: 3px 3px 0 0; border-radius: 0 6px 0 0; }
+    .viewfinder .corner-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; border-radius: 0 0 6px 0; }
+    .viewfinder .corner-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; border-radius: 0 0 0 6px; }
 
-  /* Sidebar */
-  #sidebar{
-    display:flex;flex-direction:column;
-    width:220px;flex-shrink:0;
-    background:linear-gradient(180deg,#FF6B35,#F5A623);
-    padding:24px 14px 20px;
-    box-shadow:4px 0 20px rgba(255,107,53,.25);
-    z-index:100;
-  }
+    .camera-hint {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,.85);
+      font-size: .8rem;
+      white-space: nowrap;
+      background: rgba(0,0,0,.35);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
 
-  /* Sidebar nav items */
-  #sidebar .nav-item{
-    display:flex;flex-direction:row;align-items:center;
-    gap:11px;padding:11px 14px;border-radius:12px;
-    font-size:13px;font-weight:700;
-    color:rgba(255,255,255,.75);cursor:pointer;
-    transition:all .18s;width:100%;
-  }
-  #sidebar .nav-item.active{color:#fff;background:rgba(255,255,255,.22)}
-  #sidebar .nav-item:hover:not(.active){color:#fff;background:rgba(255,255,255,.12)}
-  #sidebar .nav-icon{width:22px;height:22px;flex-shrink:0}
+    .camera-controls {
+      background: #111;
+      padding: 24px 0 calc(24px + var(--safe-bottom));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      flex-shrink: 0;
+    }
+    .btn-capture {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      background: #fff;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .1s, opacity .1s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.5);
+    }
+    .btn-capture:active { transform: scale(.92); opacity: .85; }
+    .btn-capture svg { width: 28px; height: 28px; fill: var(--green-800); }
 
-  /* Main content area */
-  #main-content{display:flex;flex-direction:column;flex:1;overflow:hidden;background:#F0F4FF}
+    .btn-gallery {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,.5);
+      background: rgba(255,255,255,.12);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 1.4rem;
+      transition: background .15s;
+    }
+    .btn-gallery:active { background: rgba(255,255,255,.25); }
 
-  /* Desktop topbar */
-  #desktop-topbar{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:13px 24px;background:#fff;
-    border-bottom:1px solid #f0f0f0;flex-shrink:0;
-    box-shadow:0 2px 8px rgba(0,0,0,.05);
-  }
+    .btn-flip {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.5);
+      background: rgba(255,255,255,.12);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 1.3rem;
+      transition: background .15s, transform .3s;
+    }
+    .btn-flip:active { background: rgba(255,255,255,.25); }
+    .btn-flip.flipping { transform: rotate(180deg); }
 
-  /* Hide mobile-only elements */
-  .hdr{display:none!important}
-  .bnav{display:none!important}
+    #file-input { display: none; }
 
-  /* Views fill available space */
-  .view{flex:1}
-  .scroll{padding:24px}
-  .filter-bar{padding:12px 24px 10px}
-  .stats-grid{padding:20px 24px}
-}
+    .camera-error {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: #fff;
+      text-align: center;
+      padding: 32px;
+      background: rgba(0,0,0,.7);
+    }
+    .camera-error .err-icon { font-size: 3rem; }
+    .camera-error p { font-size: .95rem; opacity: .85; }
 
-/* Header */
-.hdr{background:linear-gradient(135deg,var(--or),var(--yl));padding:11px 16px 13px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 4px 20px rgba(255,107,53,.35);z-index:200}
-.logo{display:flex;align-items:center;gap:9px}
-.logo-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:#fff;line-height:1}
-.logo-sub{font-size:10px;color:rgba(255,255,255,.8);font-weight:600}
-.hdr-avatar{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);color:#fff;font-weight:900;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.hdr-btn{border:none;border-radius:20px;background:#fff;color:var(--or);padding:7px 16px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+    /* ─── LOADING OVERLAY ─── */
+    #loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(0,0,0,.55);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+    #loading-overlay.active { display: flex; }
+    .spinner {
+      width: 52px; height: 52px;
+      border: 4px solid rgba(255,255,255,.25);
+      border-top-color: var(--green-400);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: #fff; font-size: .95rem; font-weight: 500; text-align: center; padding: 0 32px; }
 
-/* Views */
-.view{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.view.hidden{display:none!important}
-.hidden{display:none!important}
-.scroll{flex:1;overflow-y:auto;padding:16px}
+    /* ─── RESULT SCREEN ─── */
+    #screen-result {
+      background: var(--bg);
+    }
+    .result-hero {
+      position: relative;
+      background: #000;
+      flex-shrink: 0;
+    }
+    .result-hero img {
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      display: block;
+      opacity: .9;
+    }
+    .result-hero-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 100%);
+      padding: 48px 20px 16px;
+      color: #fff;
+    }
+    .result-plant-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .result-scientific {
+      font-size: .85rem;
+      opacity: .75;
+      font-style: italic;
+      margin-top: 2px;
+    }
 
-/* Map */
-#gmap{flex:1;position:relative;overflow:hidden}
-#gmap-el{position:absolute;inset:0}
+    .result-content { padding: 16px; display: flex; flex-direction: column; gap: 12px; padding-bottom: calc(24px + var(--safe-bottom)); }
 
-/* Filter bar */
-.filter-bar{background:#fff;padding:9px 12px 7px;border-bottom:1px solid #f0f0f0;flex-shrink:0;z-index:10}
-.search-row{display:flex;align-items:center;gap:7px;background:#F0F4FF;border-radius:11px;padding:8px 12px;margin-bottom:8px}
-.search-row input{border:none;outline:none;background:transparent;font-family:'Nunito',sans-serif;font-size:13px;flex:1}
-.pills{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
-.pills::-webkit-scrollbar{display:none}
-.pill{border:2px solid #e8e8f0;border-radius:20px;padding:5px 13px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;background:#fff;color:#666;transition:all .18s}
-.pill.active{color:#fff;border-color:transparent}
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: .85rem;
+      font-weight: 600;
+    }
+    .status-badge.healthy   { background: var(--green-100); color: var(--green-800); }
+    .status-badge.warning   { background: var(--amber-100); color: #C67C00; }
+    .status-badge.critical  { background: var(--red-100); color: var(--red-600); }
 
-/* Map controls */
-.map-ctrl-zoom{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:20}
-.zoom-btn{width:38px;height:38px;border-radius:10px;background:#fff;border:none;box-shadow:0 3px 12px rgba(0,0,0,.22);cursor:pointer;font-size:19px;font-weight:900;display:flex;align-items:center;justify-content:center}
-.locate-btn{position:absolute;bottom:74px;right:12px;width:42px;height:42px;border-radius:50%;background:#fff;border:none;box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:20;transition:all .2s}
-.fab{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:20;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;border:none;border-radius:26px;padding:12px 24px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 22px rgba(255,107,53,.5);display:flex;align-items:center;gap:7px;white-space:nowrap}
-.report-mode-bar{position:absolute;top:12px;left:12px;right:60px;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;border-radius:14px;padding:8px 14px;font-size:12px;font-weight:700;box-shadow:0 4px 12px rgba(255,107,53,.4);z-index:20;pointer-events:none;text-align:center}
-.fab-row{position:absolute;bottom:12px;left:0;right:0;display:flex;gap:10px;padding:0 14px;z-index:20}
+    .result-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .result-card-title {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .result-description {
+      font-size: .95rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
 
-/* Loading overlay */
-.map-loading{position:absolute;inset:0;background:rgba(240,244,255,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:15;gap:14px}
-.spinner{width:44px;height:44px;border:4px solid #e8e8f0;border-top-color:var(--or);border-radius:50%;animation:spin .8s linear infinite}
-.map-loading-txt{font-weight:700;font-size:14px;color:#666}
+    .issue-list { display: flex; flex-direction: column; gap: 8px; }
+    .issue-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--red-100);
+      border-radius: var(--radius-sm);
+      font-size: .9rem;
+    }
+    .issue-item .issue-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+    .issue-item .issue-text { color: #7B1919; line-height: 1.4; }
+    .issue-item .issue-name { font-weight: 600; display: block; }
 
-/* Places badge on map — no price yet */
-.pm-nopr{background:#fff;border:2px solid #e0e0e0;border-radius:10px;padding:5px 10px;display:flex;align-items:center;gap:5px;box-shadow:0 2px 10px rgba(0,0,0,.12);white-space:nowrap;cursor:pointer}
-.pm-nopr-dot{width:8px;height:8px;border-radius:50%;background:#ccc;flex-shrink:0}
-.pm-nopr-name{font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:#555;max-width:90px;overflow:hidden;text-overflow:ellipsis}
+    .remedy-list { display: flex; flex-direction: column; gap: 10px; }
+    .remedy-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .remedy-number {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      background: var(--green-700);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
+      font-weight: 700;
+    }
+    .remedy-text { font-size: .9rem; line-height: 1.5; color: var(--text-secondary); padding-top: 3px; }
+    .remedy-text strong { color: var(--text-primary); display: block; margin-bottom: 2px; }
 
-/* Bottom sheet */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
-.overlay.open{opacity:1;pointer-events:all}
-.sheet{background:#fff;border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:0 20px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1,.32,1)}
-.overlay.open .sheet{transform:translateY(0)}
-.handle{width:38px;height:4px;background:#ddd;border-radius:99px;margin:12px auto 18px}
+    .care-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .care-item {
+      background: var(--green-50);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .care-icon { font-size: 1.3rem; }
+    .care-label { font-size: .72rem; color: var(--text-muted); font-weight: 500; }
+    .care-value { font-size: .85rem; font-weight: 600; color: var(--text-primary); }
 
-/* Forms */
-.field{margin-bottom:14px}
-.field label{font-size:13px;font-weight:700;display:block;margin-bottom:5px}
-.inp{border:2px solid #e8e8f0;border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:14px;width:100%;outline:none;transition:border .2s}
-.inp:focus{border-color:var(--or)}
-.sel{border:2px solid #e8e8f0;border-radius:12px;padding:11px 14px;font-family:'Nunito',sans-serif;font-size:14px;width:100%;outline:none;background:#fff;cursor:pointer}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.btn-p{border:none;border-radius:14px;padding:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;width:100%;background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;margin-bottom:10px}
-.btn-s{border:none;border-radius:14px;padding:13px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:100%;background:#f0f0f0;color:#666}
-.loc-info{background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:11px;margin-bottom:14px;display:flex;align-items:center;gap:9px;border:1.5px solid rgba(255,107,53,.2)}
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--green-700);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .15s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-primary:active { background: var(--green-800); transform: scale(.99); }
 
-/* Ranking */
-.rank-row{background:#fff;border-radius:15px;padding:12px 14px;margin-bottom:9px;display:flex;align-items:center;gap:11px;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer;animation:fi .3s ease both}
-.rank-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
-.podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;padding:8px 0 22px}
-.pod-item{flex:1;text-align:center}
-.pod-bar{border-radius:9px 9px 0 0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:18px;margin-top:5px}
+    /* ─── HISTORY SCREEN ─── */
+    #screen-history { background: var(--bg); }
+    .history-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; padding-bottom: calc(16px + var(--safe-bottom)); }
+    .history-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      padding: 40px;
+      text-align: center;
+    }
+    .history-empty .empty-icon { font-size: 3.5rem; }
+    .history-empty p { font-size: .95rem; }
 
-/* Profile */
-.prof-hero{background:linear-gradient(135deg,var(--or),var(--yl));padding:26px 20px 22px;text-align:center;color:#fff}
-.prof-av{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin:0 auto 10px;border:3px solid rgba(255,255,255,.5)}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;padding:14px}
-.stat-card{background:#fff;border-radius:15px;padding:14px 6px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.entry-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 3px 14px rgba(0,0,0,.08);cursor:pointer;border:2px solid transparent;transition:border .2s;margin-bottom:13px}
-.entry-card:hover{border-color:var(--or)}
+    .history-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      cursor: pointer;
+      transition: box-shadow .15s;
+      box-shadow: var(--shadow-sm);
+    }
+    .history-card:active { box-shadow: var(--shadow-md); }
+    .history-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .history-thumb-placeholder {
+      width: 80px; height: 80px;
+      background: var(--green-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .history-info {
+      padding: 10px 14px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-width: 0;
+    }
+    .history-plant { font-weight: 600; font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .history-date { font-size: .78rem; color: var(--text-muted); }
+    .history-status { margin-top: 2px; }
 
-/* Bottom nav */
-.bnav{background:#fff;border-top:1px solid #f0f0f0;display:flex;justify-content:space-around;padding:7px 0 11px;flex-shrink:0;box-shadow:0 -4px 18px rgba(0,0,0,.07);z-index:200}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 16px;border-radius:16px;font-size:11px;font-weight:700;color:#aaa;transition:all .2s}
-.nav-item.active{color:var(--or);background:rgba(255,107,53,.08)}
-.nav-icon{width:26px;height:26px;transition:opacity .2s}
-.nav-icon .outline{opacity:1;transition:opacity .2s}
-.nav-icon .filled{opacity:0;transition:opacity .2s}
-.nav-item.active .nav-icon .outline{opacity:0}
-.nav-item.active .nav-icon .filled{opacity:1}
+    /* ─── SETTINGS SCREEN ─── */
+    #screen-settings { background: var(--bg); }
+    .settings-content { padding: 20px; display: flex; flex-direction: column; gap: 20px; padding-bottom: calc(24px + var(--safe-bottom)); }
+    .settings-section { display: flex; flex-direction: column; gap: 10px; }
+    .settings-label {
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-muted);
+    }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-group label { font-size: .9rem; font-weight: 500; color: var(--text-primary); }
+    .input-group small { font-size: .78rem; color: var(--text-muted); }
+    .text-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .95rem;
+      font-family: var(--font);
+      background: var(--surface);
+      color: var(--text-primary);
+      transition: border-color .15s;
+      outline: none;
+    }
+    .text-input:focus { border-color: var(--green-500); }
 
-/* Source badge */
-.source-google{display:inline-flex;align-items:center;gap:4px;background:#F0F4FF;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:#4A90D9;margin-top:4px}
-.source-user{display:inline-flex;align-items:center;gap:4px;background:#FFF0E6;border-radius:8px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--or);margin-top:4px}
+    .model-options { display: flex; flex-direction: column; gap: 8px; }
+    .model-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .model-option.selected { border-color: var(--green-500); background: var(--green-50); }
+    .model-option input[type=radio] { accent-color: var(--green-700); }
+    .model-option-info { flex: 1; }
+    .model-option-name { font-size: .9rem; font-weight: 600; }
+    .model-option-desc { font-size: .78rem; color: var(--text-muted); }
 
-/* Toast */
-.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--gr);color:#fff;padding:11px 22px;border-radius:16px;font-weight:700;font-size:14px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.22);pointer-events:none;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.toast.err{background:var(--re)}
+    .settings-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-card p { font-size: .88rem; color: var(--text-secondary); line-height: 1.5; }
+    .settings-card a { color: var(--green-700); text-decoration: none; font-weight: 500; }
 
-/* Login */
-.login-card{background:#fff;border-radius:18px;padding:20px;box-shadow:0 3px 16px rgba(0,0,0,.08)}
-.toggle-auth{text-align:center;margin-top:13px;font-size:13px;color:#999}
-.toggle-auth span{color:var(--or);font-weight:700;cursor:pointer}
+    /* ─── TOAST ─── */
+    #toast {
+      position: fixed;
+      bottom: calc(24px + var(--safe-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: .9rem;
+      font-weight: 500;
+      z-index: 200;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .3s;
+      opacity: 0;
+      pointer-events: none;
+      max-width: calc(100vw - 40px);
+      text-align: center;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.error { background: var(--red-600); }
+    #toast.success { background: var(--green-700); }
 
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-</style>
+    /* ─── SECTION HEADING ─── */
+    .screen-heading {
+      padding: 16px 20px 0;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+  </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- SIDEBAR (desktop only — bottom nav se convierte en sidebar via CSS) -->
-  <div id="sidebar">
-    <div style="display:flex;align-items:center;gap:9px;margin-bottom:32px;padding:0 4px">
-      <span style="font-size:28px">⛽</span>
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;line-height:1">Tanque Lleno</div>
-        <div style="font-size:11px;color:rgba(255,255,255,.8);font-weight:600;margin-top:2px">Precios en tiempo real 🇨🇱</div>
+  <!-- TOP BAR -->
+  <header class="topbar" id="topbar">
+    <div class="topbar-title">
+      <span class="leaf">🌿</span>
+      <span>PlantaVida</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="btn-history" title="Historial" aria-label="Historial">📋</button>
+      <button class="icon-btn" id="btn-settings" title="Configuración" aria-label="Configuración">⚙️</button>
+    </div>
+  </header>
+
+  <!-- CAMERA SCREEN -->
+  <section class="screen active" id="screen-camera" role="main">
+    <div id="video-container">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas id="canvas"></canvas>
+      <div class="camera-overlay">
+        <div class="viewfinder">
+          <span class="corner-br"></span>
+          <span class="corner-bl"></span>
+        </div>
+        <div class="camera-hint">Apunta a tu planta y captura</div>
+      </div>
+      <div id="camera-error-msg" class="camera-error" style="display:none">
+        <span class="err-icon">📷</span>
+        <strong>Cámara no disponible</strong>
+        <p>Usa el botón de galería para seleccionar una foto de tu planta.</p>
       </div>
     </div>
-    <!-- Nav items sidebar -->
-    <div style="display:flex;flex-direction:column;gap:4px;flex:1">
-      <div class="nav-item active" id="snav-map" onclick="showView('map')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z" fill="currentColor"/></svg>
-        Mapa
-      </div>
-      <div class="nav-item" id="snav-ranking" onclick="showView('ranking')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z" fill="currentColor"/></svg>
-        Ranking
-      </div>
-      <div class="nav-item" id="snav-report" onclick="showView('report')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 2c2.76 0 5 2.24 5 5 0 3.53-4.06 8.86-5 10.02C11.06 17.86 7 12.53 7 9c0-2.76 2.24-5 5-5z" fill="currentColor"/><path d="M13 6h-2v2H9v2h2v2h2v-2h2V8h-2z" fill="currentColor"/></svg>
-        Informar precio
-      </div>
-      <div class="nav-item" id="snav-profile" onclick="showView('profile')">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/></svg>
-        Perfil
+    <div class="camera-controls">
+      <button class="btn-gallery" id="btn-gallery" title="Seleccionar foto" aria-label="Galería">🖼️</button>
+      <button class="btn-capture" id="btn-capture" aria-label="Capturar">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>
+      </button>
+      <button class="btn-flip" id="btn-flip" title="Cambiar cámara" aria-label="Voltear cámara">🔄</button>
+    </div>
+    <input type="file" id="file-input" accept="image/*" capture="environment" />
+  </section>
+
+  <!-- RESULT SCREEN -->
+  <section class="screen" id="screen-result" role="main">
+    <div class="result-hero" id="result-hero">
+      <img id="result-img" src="" alt="Foto de la planta" />
+      <div class="result-hero-overlay">
+        <div id="result-plant-name" class="result-plant-name">—</div>
+        <div id="result-scientific" class="result-scientific"></div>
       </div>
     </div>
-    <!-- Usuario sidebar -->
-    <div id="sidebar-user" style="border-top:1px solid rgba(255,255,255,.2);padding-top:16px;margin-top:16px"></div>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div id="main-content">
-
-    <!-- Topbar desktop -->
-    <div id="desktop-topbar">
-      <div id="desktop-topbar-title" style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#1a1a2e">🗺️ Mapa</div>
-      <div id="hdr-right"></div>
+    <div class="result-content" id="result-content">
+      <!-- filled dynamically -->
     </div>
+  </section>
 
-    <!-- HEADER mobile -->
-    <div class="hdr">
-      <div class="logo">
-        <span style="font-size:24px">⛽</span>
-        <div>
-          <div class="logo-title">Tanque Lleno</div>
-          <div class="logo-sub">El mejor precio cerca de ti 🇨🇱</div>
+  <!-- HISTORY SCREEN -->
+  <section class="screen" id="screen-history" role="main">
+    <div class="screen-heading">Historial de diagnósticos</div>
+    <div id="history-list" class="history-list">
+      <!-- filled dynamically -->
+    </div>
+  </section>
+
+  <!-- SETTINGS SCREEN -->
+  <section class="screen" id="screen-settings" role="main">
+    <div class="settings-content">
+      <div class="settings-section">
+        <div class="settings-label">API Key de Anthropic</div>
+        <div class="input-group">
+          <label for="input-apikey">Tu API Key</label>
+          <input type="password" id="input-apikey" class="text-input" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false" />
+          <small>Se guarda localmente en tu dispositivo. Nunca se envía a ningún servidor propio.</small>
         </div>
       </div>
-      <div id="hdr-right-mobile"></div>
-    </div>
-
-  <!-- MAP VIEW -->
-  <div class="view" id="view-map">
-    <div class="filter-bar" id="filter-bar">
-      <div class="search-row">
-        <span>🔍</span>
-        <input id="search-inp" placeholder="Buscar estación..." oninput="filterOverlays()"/>
-      </div>
-      <div class="pills" id="fuel-pills"></div>
-    </div>
-    <div id="gmap">
-      <div id="gmap-el"></div>
-
-      <!-- Loading state -->
-      <div class="map-loading" id="map-loading">
-        <div class="spinner"></div>
-        <div class="map-loading-txt">Cargando bencineras cercanas…</div>
-      </div>
-
-      <!-- Controls -->
-      <div class="map-ctrl-zoom" id="zoom-ctrl">
-        <button class="zoom-btn" onclick="gmapZoom(1)">+</button>
-        <button class="zoom-btn" onclick="gmapZoom(-1)">−</button>
-      </div>
-      <button class="locate-btn" id="locate-btn" onclick="locateAndSearch()">📍</button>
-      <div class="report-mode-bar hidden" id="report-mode-bar">📍 Toca una bencinera o el mapa para informar el precio</div>
-      <div id="fab-container">
-        <button class="fab" id="main-fab" onclick="startPinMode()">
-          <span>➕</span> Informar precio aquí
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- RANKING VIEW -->
-  <div class="view hidden" id="view-ranking">
-    <div class="scroll">
-      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">🏆 Ranking</div>
-      <div style="color:#999;font-size:13px;margin-bottom:14px">Estaciones más baratas</div>
-      <div style="display:flex;gap:10px;margin-bottom:16px">
-        <select class="sel" id="rank-fuel" onchange="renderRanking()" style="flex:1"></select>
-        <select class="sel" id="rank-region" onchange="renderRanking()" style="flex:1">
-          <option value="Todas">Todas</option>
-        </select>
-      </div>
-      <div id="podium-el"></div>
-      <div id="ranking-list"></div>
-    </div>
-  </div>
-
-  <!-- REPORT ENTRY VIEW -->
-  <div class="view hidden" id="view-report">
-    <div class="scroll">
-      <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-bottom:3px">📍 Informar precio</div>
-      <div style="color:#999;font-size:13px;margin-bottom:18px">¿Cómo quieres ubicar la estación?</div>
-      <div id="report-login-warn" class="hidden" style="background:#FFF8DC;border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--yl)">
-        <div style="font-weight:700;font-size:14px">⚠️ Inicia sesión para informar un precio</div>
-        <button class="btn-p" style="margin-top:10px;width:auto;padding:9px 20px;font-size:13px" onclick="showView('login')">Entrar →</button>
-      </div>
-      <div class="entry-card" onclick="startPinMode()">
-        <div style="font-size:32px;margin-bottom:7px">🗺️</div>
-        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px">Tocar en el mapa</div>
-        <div style="color:#999;font-size:13px">Toca una bencinera de Google Maps o cualquier punto</div>
-      </div>
-      <div class="entry-card" onclick="startGpsReport()">
-        <div style="font-size:32px;margin-bottom:7px">📡</div>
-        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:3px">Usar mi ubicación GPS</div>
-        <div style="color:#999;font-size:13px" id="gps-card-sub">Reporta desde donde estás parado ahora</div>
-      </div>
-      <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
-        <span style="font-size:22px">🏆</span>
-        <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por cada precio informado</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE VIEW -->
-  <div class="view hidden" id="view-profile">
-    <div style="flex:1;overflow-y:auto">
-      <div class="prof-hero" id="prof-hero"></div>
-      <div class="stats-grid" id="prof-stats"></div>
-      <div style="padding:0 14px 20px" id="prof-body"></div>
-    </div>
-  </div>
-
-  <!-- LOGIN VIEW -->
-  <div class="view hidden" id="view-login">
-    <div class="scroll">
-      <div style="text-align:center;padding-bottom:22px">
-        <div style="font-size:50px">⛽</div>
-        <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800;margin-top:7px" id="login-title">¡Bienvenido!</div>
-        <div style="color:#999;font-size:13px;margin-top:3px" id="login-sub">Inicia sesión para informar un precio</div>
-      </div>
-      <div class="login-card">
-        <div class="field hidden" id="name-field">
-          <label>👤 Nombre</label><input class="inp" id="f-name" placeholder="Tu nombre" type="text"/>
-        </div>
-        <div class="field">
-          <label>📧 Email</label><input class="inp" id="f-email" placeholder="correo@ejemplo.cl" type="email"/>
-        </div>
-        <div class="field">
-          <label>🔒 Contraseña</label>
-          <div style="position:relative">
-            <input class="inp" id="f-pass" placeholder="••••••••" type="password" style="padding-right:44px" oninput="checkPass(this.value)"/>
-            <button onclick="togglePass()" type="button" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;color:#aaa" id="pass-eye">
-              <svg id="eye-show" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-              </svg>
-              <svg id="eye-hide" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-              </svg>
-            </button>
-          </div>
-          <!-- Strength indicator (solo visible en registro) -->
-          <div id="pass-strength" class="hidden" style="margin-top:8px">
-            <div style="display:flex;gap:4px;margin-bottom:5px">
-              <div id="bar1" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
-              <div id="bar2" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
-              <div id="bar3" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
-              <div id="bar4" style="flex:1;height:4px;border-radius:99px;background:#e8e8f0;transition:background .3s"></div>
+      <div class="settings-section">
+        <div class="settings-label">Modelo de IA</div>
+        <div class="model-options" id="model-options">
+          <label class="model-option selected">
+            <input type="radio" name="model" value="claude-opus-4-8" checked />
+            <div class="model-option-info">
+              <div class="model-option-name">Claude Opus 4.8</div>
+              <div class="model-option-desc">Más preciso — recomendado para diagnósticos</div>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <span id="pass-label" style="font-size:11px;font-weight:700;color:#aaa"></span>
-              <div id="pass-rules" style="font-size:10px;color:#999;text-align:right;line-height:1.6"></div>
+          </label>
+          <label class="model-option">
+            <input type="radio" name="model" value="claude-haiku-4-5-20251001" />
+            <div class="model-option-info">
+              <div class="model-option-name">Claude Haiku 4.5</div>
+              <div class="model-option-desc">Más rápido y económico</div>
             </div>
-          </div>
+          </label>
         </div>
-        <button class="btn-p" id="login-submit-btn" onclick="doLogin()">🔑 Iniciar sesión</button>
-        <div class="toggle-auth">¿No tienes cuenta? <span id="toggle-link" onclick="toggleAuth()">Regístrate</span></div>
+      </div>
+      <div class="settings-section">
+        <button class="btn-primary" id="btn-save-settings">💾 Guardar configuración</button>
+      </div>
+      <div class="settings-card">
+        <p>Para usar PlantaVida necesitas una <strong>API Key de Anthropic</strong>. Puedes obtener una en <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. La clave se guarda solo en este dispositivo.</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- BOTTOM NAV -->
-  <div class="bnav">
+</div><!-- /app -->
 
-  </div><!-- end main-content -->
-</div><!-- end app -->
-<div class="overlay" id="stn-overlay" onclick="closeSheet('stn-overlay')">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="handle"></div>
-    <div id="stn-content"></div>
-  </div>
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" role="status" aria-live="polite">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Analizando tu planta…</div>
 </div>
 
-<!-- REPORT FORM SHEET -->
-<div class="overlay" id="rep-overlay" onclick="closeSheet('rep-overlay')">
-  <div class="sheet" onclick="event.stopPropagation()">
-    <div class="handle"></div>
-    <div id="rep-content"></div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- SHOP SHEET -->
-<div class="overlay" id="shop-overlay" onclick="closeSheet('shop-overlay')">
-  <div class="sheet" onclick="event.stopPropagation()" style="padding-bottom:40px">
-    <div class="handle"></div>
-    <div id="shop-content"></div>
-  </div>
-</div>
+<!-- TOAST -->
+<div id="toast" role="alert" aria-live="assertive"></div>
 
 <script>
-// ── CONSTANTS ─────────────────────────────────────────────────────────────────
-const FUEL_TYPES  = ["93","95","97","Diesel","Kerosene"];
-const FUEL_COLORS = {"93":"#FF6B35","95":"#F5A623","97":"#00C896","Diesel":"#4A90D9","Kerosene":"#9B59B6"};
-const REGIONS     = ["Arica y Parinacota","Tarapacá","Antofagasta","Atacama","Coquimbo","Valparaíso","Metropolitana","O'Higgins","Maule","Ñuble","Biobío","La Araucanía","Los Ríos","Los Lagos","Aysén","Magallanes"];
+'use strict';
 
-// ── COSMETICS CATALOG ─────────────────────────────────────────────────────────
-const AVATARS = [
-  { id:"av_car",    emoji:"🚗", name:"Auto",         pts:50  },
-  { id:"av_pump",   emoji:"⛽", name:"Bomba",         pts:80  },
-  { id:"av_race",   emoji:"🏎️", name:"Deportivo",     pts:150 },
-  { id:"av_eagle",  emoji:"🦅", name:"Águila",        pts:200 },
-  { id:"av_crown",  emoji:"👑", name:"Corona",        pts:500 },
-  { id:"av_rocket", emoji:"🚀", name:"Cohete",        pts:300 },
-  { id:"av_star",   emoji:"⭐", name:"Estrella",      pts:100 },
-  { id:"av_fire",   emoji:"🔥", name:"Fuego",         pts:120 },
-];
+// ──────────────────────────────────────────────
+// STATE & STORAGE
+// ──────────────────────────────────────────────
+const store = {
+  get: (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch { return def; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
 
-const TITLES = [
-  { id:"tit_surtidor",  label:"⛽ Surtidor",      color:"#FF6B35", bg:"#FFF0E6", pts:100  },
-  { id:"tit_ahorrista", label:"🌿 Ahorrista",     color:"#00C896", bg:"#E6FFF4", pts:150  },
-  { id:"tit_rey",       label:"👑 Rey del precio",color:"#F5A623", bg:"#FFF8DC", pts:1000 },
-  { id:"tit_crack",     label:"🔥 Crack",         color:"#FF4757", bg:"#FFF0F0", pts:300  },
-  { id:"tit_explorador",label:"🗺️ Explorador",    color:"#4A90D9", bg:"#EFF6FF", pts:200  },
-  { id:"tit_experto",   label:"🏅 Experto",       color:"#9B59B6", bg:"#F5EFF9", pts:500  },
-];
+let currentScreen = 'camera';
+let capturedDataUrl = null;
+let stream = null;
+let facingMode = 'environment';
+let cameraReady = false;
 
-const FRAMES = [
-  { id:"frame_orange", name:"Naranja",  style:"2px solid #FF6B35",                       pts:200 },
-  { id:"frame_green",  name:"Verde",    style:"2px dashed #00C896",                      pts:200 },
-  { id:"frame_gold",   name:"Dorado",   style:"2px solid #FFD700",  glow:"0 0 8px #FFD700", pts:400 },
-  { id:"frame_blue",   name:"Azul",     style:"2px solid #4A90D9",                       pts:250 },
-  { id:"frame_purple", name:"Púrpura",  style:"2px solid #9B59B6",                       pts:300 },
-  { id:"frame_rainbow",name:"Arcoíris", style:"3px solid transparent", rainbow:true,     pts:800 },
-];
+// ──────────────────────────────────────────────
+// DOM REFS
+// ──────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const screens = {
+  camera:   $('screen-camera'),
+  result:   $('screen-result'),
+  history:  $('screen-history'),
+  settings: $('screen-settings'),
+};
+const video          = $('video');
+const canvas         = $('canvas');
+const loadingOverlay = $('loading-overlay');
+const loadingText    = $('loading-text');
+const toastEl        = $('toast');
+const cameraErr      = $('camera-error-msg');
+const fileInput      = $('file-input');
 
-const PIN_COLORS = [
-  { id:"pin_orange", name:"Naranja",  color:"#FF6B35", pts:0   },
-  { id:"pin_purple", name:"Púrpura",  color:"#9B59B6", pts:300 },
-  { id:"pin_blue",   name:"Azul",     color:"#4A90D9", pts:300 },
-  { id:"pin_gold",   name:"Dorado",   color:"#FFD700", pts:400 },
-  { id:"pin_red",    name:"Rojo",     color:"#FF4757", pts:200 },
-  { id:"pin_teal",   name:"Teal",     color:"#00C896", pts:350 },
-];
-const GMAP_KEY    = "AIzaSyD6_MOIgbB-2oi75xsal6HIj344t2b7ous";
-
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let gmap          = null;
-let placesService = null;
-let overlays      = [];      // PriceOverlay instances
-let placeOverlays = [];      // GooglePlaceOverlay instances (no price yet)
-let reportMarker  = null;
-let userMarker    = null;
-let currentUser   = null;
-let selectedFuel  = "Todos";
-let reportMode    = false;
-let isReg         = false;
-let pendingLL     = null;
-let pendingPlace  = null;   // place data pre-filled when tapping a Google place
-let toastTimer    = null;
-
-// Stations with user-reported prices
-let stations = [];
-
-// ── MARKER FACTORIES (native Marker + label — always renders correctly) ────────
-
-function makePlaceIcon(name) {
-  // White pill marker with fuel pump icon — SVG encoded as data URL
-  const short = name.length > 14 ? name.slice(0,13)+"…" : name;
-  const w = Math.max(120, short.length * 7 + 40);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="44">
-    <rect x="1" y="1" width="${w-2}" height="32" rx="8" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
-    <text x="12" y="14" font-size="12" font-family="Arial" fill="#333" font-weight="bold">⛽</text>
-    <text x="28" y="14" font-size="10" font-family="Arial" fill="#333" font-weight="bold">${short}</text>
-    <text x="28" y="26" font-size="8" font-family="Arial" fill="#aaa">Sin precio · toca para informar</text>
-    <polygon points="${w/2-6},33 ${w/2+6},33 ${w/2},41" fill="white" stroke="#c8d4e8" stroke-width="1.5"/>
-  </svg>`;
-  return {
-    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    anchor: new google.maps.Point(w/2, 41),
-    scaledSize: new google.maps.Size(w, 44),
-  };
+// ──────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────
+function showScreen(name) {
+  Object.entries(screens).forEach(([k, el]) => {
+    el.classList.toggle('active', k === name);
+  });
+  currentScreen = name;
+  if (name === 'history')  renderHistory();
+  if (name === 'settings') loadSettings();
+  if (name !== 'camera')   pauseCamera();
+  else                     startCamera();
 }
 
-function makePriceIcon(price, color, cheap) {
-  const label = "$" + price.toLocaleString("es-CL");
-  const w = cheap ? label.length * 9 + 60 : label.length * 8 + 20;
-  const h = cheap ? 54 : 38;
-  let svg;
-  if (cheap) {
-    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-      <rect x="0" y="0" width="${w}" height="18" rx="5" fill="#00a878"/>
-      <text x="${w/2}" y="13" font-size="9" font-family="Arial" fill="white" font-weight="900" text-anchor="middle" letter-spacing="1">MÁS BARATO</text>
-      <rect x="0" y="16" width="${w}" height="26" rx="8" fill="#00C896" stroke="white" stroke-width="2"/>
-      <text x="14" y="34" font-size="15" font-family="Arial">👑</text>
-      <text x="32" y="34" font-size="14" font-family="Arial" fill="white" font-weight="900">${label}</text>
-      <polygon points="${w/2-7},42 ${w/2+7},42 ${w/2},${h}" fill="#00C896"/>
-    </svg>`;
-  } else {
-    svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-      <rect x="0" y="0" width="${w}" height="26" rx="8" fill="${color}" stroke="rgba(255,255,255,0.6)" stroke-width="1.5"/>
-      <text x="${w/2}" y="18" font-size="13" font-family="Arial" fill="white" font-weight="900" text-anchor="middle">${label}</text>
-      <polygon points="${w/2-6},26 ${w/2+6},26 ${w/2},${h}" fill="${color}"/>
-    </svg>`;
+// ──────────────────────────────────────────────
+// CAMERA
+// ──────────────────────────────────────────────
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showCameraError(); return;
   }
-  return {
-    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    anchor: new google.maps.Point(w/2, h),
-    scaledSize: new google.maps.Size(w, h),
-  };
-}
-
-// ── ICON: todos los precios ────────────────────────────────────────────────────
-function makeAllPricesIcon(prices, pinColor) {
-  const entries = Object.entries(prices);
-  if (!entries.length) return makePriceIcon(0, "#999", false);
-
-  const lineH = 16;
-  const pad   = 10;
-  const w     = 130;
-  const h     = pad + entries.length * lineH + pad + 10; // +10 flecha
-
-  const rows = entries.map(([fuel, price], i) => {
-    const col = FUEL_COLORS[fuel] || "#888";
-    const y   = pad + i * lineH + lineH * 0.7;
-    return `
-      <circle cx="10" cy="${y}" r="4" fill="${col}"/>
-      <text x="18" y="${y+4}" font-size="9" font-family="Arial" font-weight="700" fill="${col}">${fuel}</text>
-      <text x="${w-8}" y="${y+4}" font-size="10" font-family="Arial" font-weight="900" fill="#1a1a2e" text-anchor="end">$${price.toLocaleString("es-CL")}</text>`;
-  }).join("");
-
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
-    <rect x="0" y="0" width="${w}" height="${h-10}" rx="10" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
-    ${rows}
-    <polygon points="${w/2-6},${h-10} ${w/2+6},${h-10} ${w/2},${h}" fill="white" stroke="#e0e0e0" stroke-width="1.5"/>
-    <polygon points="${w/2-5},${h-11} ${w/2+5},${h-11} ${w/2},${h-2}" fill="white"/>
-  </svg>`;
-
-  return {
-    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    anchor: new google.maps.Point(w/2, h),
-    scaledSize: new google.maps.Size(w, h),
-  };
-}
-function initMap() {
-  gmap = new google.maps.Map(document.getElementById("gmap-el"), {
-    center: { lat:-33.4489, lng:-70.6693 },
-    zoom: 13,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: false,
-    zoomControl: false,
-    gestureHandling: "greedy",
-    styles: [
-      {featureType:"poi",stylers:[{visibility:"off"}]},
-      {featureType:"poi.park",stylers:[{visibility:"off"}]},
-      {featureType:"transit",stylers:[{visibility:"off"}]},
-      {featureType:"road",elementType:"labels.icon",stylers:[{visibility:"off"}]},
-      {featureType:"landscape.man_made",stylers:[{visibility:"simplified"}]},
-    ],
-  });
-
-  placesService = new google.maps.places.PlacesService(gmap);
-
-  // Click anywhere on map in report mode
-  gmap.addListener("click", e => {
-    if (!reportMode) return;
-    pendingPlace = null;
-    placeReportPin(e.latLng.lat(), e.latLng.lng());
-  });
-
-  // When map stops moving, search nearby gas stations
-  gmap.addListener("idle", () => {
-    if (gmap.getZoom() >= 12) searchNearbyStations();
-  });
-
-  renderFuelPills();
-  setupRankingSelects();
-  locateAndSearch();
-  window.dispatchEvent(new Event("mapready"));
-}
-
-// ── PLACES SEARCH ─────────────────────────────────────────────────────────────
-function searchNearbyStations() {
-  if (!placesService) return;
-  const center = gmap.getCenter();
-
-  placesService.nearbySearch({
-    location: center,
-    radius: 3000,
-    type: "gas_station",
-  }, (results, status) => {
-    document.getElementById("map-loading").style.display = "none";
-    if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
-    const gasStations = results.filter(p => p.types && p.types.includes("gas_station"));
-
-    // Remove old place markers
-    placeOverlays.forEach(m => m.setMap(null));
-    placeOverlays = [];
-
-    gasStations.forEach(place => {
-      const reported = stations.find(s =>
-        s.placeId === place.place_id ||
-        (Math.abs(s.lat - place.geometry.location.lat()) < 0.0005 &&
-         Math.abs(s.lng - place.geometry.location.lng()) < 0.0005)
-      );
-      if (reported) return;
-
-      const marker = new google.maps.Marker({
-        position: place.geometry.location,
-        map: gmap,
-        icon: makePlaceIcon(place.name),
-        title: place.name,
-        zIndex: 5,
-      });
-      marker.addListener("click", () => onPlaceClick(place));
-      placeOverlays.push(marker);
+  try {
+    if (stream) { stream.getTracks().forEach(t => t.stop()); }
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
     });
-
-    renderMarkers();
-  });
-}
-
-// ── RENDER PRICE MARKERS ──────────────────────────────────────────────────────
-function renderMarkers() {
-  overlays.forEach(m => m.setMap(null));
-  overlays = [];
-  const q          = (document.getElementById("search-inp")?.value || "").toLowerCase();
-  const myPinColor = currentUser?.cosmetics?.pinColor || null;
-
-  if (selectedFuel === "Todos") {
-    // Agrupar estaciones por ubicación (misma lat/lng aprox)
-    const groups = {};
-    stations.forEach(s => {
-      if (q && !s.name.toLowerCase().includes(q) && !s.address.toLowerCase().includes(q)) return;
-      const key = `${s.lat.toFixed(4)}_${s.lng.toFixed(4)}`;
-      if (!groups[key]) groups[key] = { ...s, prices: {} };
-      Object.assign(groups[key].prices, s.prices);
-    });
-
-    Object.values(groups).forEach(s => {
-      const isMine = currentUser && s.by === currentUser.name;
-      const color  = isMine && myPinColor ? myPinColor : "#1a1a2e";
-      const marker = new google.maps.Marker({
-        position: { lat: s.lat, lng: s.lng },
-        map: gmap,
-        icon: makeAllPricesIcon(s.prices, color),
-        title: s.name,
-        zIndex: 10,
-      });
-      marker.addListener("click", () => showStationSheet(s));
-      overlays.push(marker);
-    });
-  } else {
-    const vis = stations.filter(s => s.prices[selectedFuel] &&
-      (!q || s.name.toLowerCase().includes(q) || s.address.toLowerCase().includes(q)));
-    const min = vis.length ? Math.min(...vis.map(s => s.prices[selectedFuel])) : 0;
-    vis.forEach(s => {
-      const cheap  = s.prices[selectedFuel] === min;
-      const isMine = currentUser && s.by === currentUser.name;
-      const color  = isMine && myPinColor ? myPinColor : FUEL_COLORS[selectedFuel];
-      const marker = new google.maps.Marker({
-        position: { lat: s.lat, lng: s.lng },
-        map: gmap,
-        icon: makePriceIcon(s.prices[selectedFuel], color, cheap),
-        title: s.name,
-        zIndex: cheap ? 20 : 10,
-      });
-      marker.addListener("click", () => showStationSheet(s));
-      overlays.push(marker);
-    });
+    video.srcObject = stream;
+    await video.play();
+    cameraReady = true;
+    cameraErr.style.display = 'none';
+  } catch (e) {
+    console.warn('Camera error:', e);
+    showCameraError();
   }
 }
 
-function filterOverlays() { renderMarkers(); }
-
-// ── FUEL PILLS ────────────────────────────────────────────────────────────────
-function renderFuelPills() {
-  const all = ["Todos", ...FUEL_TYPES];
-  document.getElementById("fuel-pills").innerHTML = all.map(f => {
-    const active  = f === selectedFuel;
-    const color   = f === "Todos" ? "#1a1a2e" : FUEL_COLORS[f];
-    const bgStyle = active ? `background:${color};border-color:${color};color:#fff` : "";
-    return `<button class="pill${active?" active":""}" style="${bgStyle}" onclick="selectFuel('${f}')">${f==="Todos"?"🗺️ Todos":f}</button>`;
-  }).join("");
+function pauseCamera() {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  cameraReady = false;
 }
-function selectFuel(f) { selectedFuel = f; renderFuelPills(); renderMarkers(); }
 
-// ── WHEN TAPPING A GOOGLE PLACE ───────────────────────────────────────────────
-function onPlaceClick(place) {
-  if (reportMode) {
-    // In report mode: pre-fill the form with place data
-    pendingPlace = place;
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-    placeReportPin(lat, lng);
+function showCameraError() {
+  cameraReady = false;
+  cameraErr.style.display = 'flex';
+}
+
+function captureFrame() {
+  if (!cameraReady) { toast('Usa la galería para seleccionar una foto', 'error'); return; }
+  const w = video.videoWidth  || 1280;
+  const h = video.videoHeight || 720;
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, w, h);
+  canvas.toBlob(blob => {
+    if (!blob) { toast('Error al capturar imagen', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = () => { capturedDataUrl = reader.result; analyzeImage(); };
+    reader.readAsDataURL(blob);
+  }, 'image/jpeg', 0.85);
+}
+
+function flipCamera() {
+  const btn = $('btn-flip');
+  btn.classList.add('flipping');
+  setTimeout(() => btn.classList.remove('flipping'), 300);
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  startCamera();
+}
+
+// ──────────────────────────────────────────────
+// FILE INPUT
+// ──────────────────────────────────────────────
+function handleFileSelected(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => { capturedDataUrl = reader.result; analyzeImage(); };
+  reader.readAsDataURL(file);
+  fileInput.value = '';
+}
+
+// ──────────────────────────────────────────────
+// RESIZE IMAGE (keep within 1200px, ~300KB JPEG)
+// ──────────────────────────────────────────────
+function resizeDataUrl(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', 0.82));
+    };
+    img.src = dataUrl;
+  });
+}
+
+// ──────────────────────────────────────────────
+// ANALYZE WITH CLAUDE
+// ──────────────────────────────────────────────
+async function analyzeImage() {
+  const apiKey = store.get('apiKey', '');
+  if (!apiKey) {
+    toast('Ingresa tu API Key en ⚙️ Configuración', 'error');
+    showScreen('settings'); return;
+  }
+
+  showLoading('Analizando tu planta…');
+
+  let resized;
+  try { resized = await resizeDataUrl(capturedDataUrl); }
+  catch { resized = capturedDataUrl; }
+
+  const base64    = resized.split(',')[1];
+  const mediaType = resized.startsWith('data:image/png') ? 'image/png' : 'image/jpeg';
+  const model     = store.get('model', 'claude-opus-4-8');
+
+  const prompt = `Eres un botánico y fitopatólogo experto. Analiza la imagen de esta planta de interior y responde SOLO con un objeto JSON válido, sin explicaciones ni texto adicional fuera del JSON.
+
+El JSON debe tener exactamente esta estructura:
+{
+  "nombre_comun": "string (nombre común en español)",
+  "nombre_cientifico": "string (nombre científico en latín, vacío si no se puede determinar)",
+  "estado_salud": "saludable" | "advertencia" | "critico",
+  "descripcion": "string (1-2 oraciones describiendo la planta y su estado general)",
+  "problemas": [
+    {
+      "nombre": "string (nombre del problema)",
+      "descripcion": "string (descripción breve)"
+    }
+  ],
+  "remedios": [
+    {
+      "titulo": "string (acción concreta)",
+      "detalle": "string (cómo aplicarlo)"
+    }
+  ],
+  "cuidados": {
+    "luz": "string (ej: Luz indirecta brillante)",
+    "riego": "string (ej: Cada 7-10 días)",
+    "humedad": "string (ej: 40-60%)",
+    "temperatura": "string (ej: 18-24°C)"
+  }
+}
+
+Si la planta está saludable, "problemas" debe ser [] y "remedios" debe contener 2-3 consejos de mantenimiento preventivo.
+Si no es una planta, pon nombre_comun: "No es una planta" y estado_salud: "advertencia".`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-client-side-request-allowlist': 'true',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      const msg = err?.error?.message || `Error ${resp.status}`;
+      if (resp.status === 401) throw new Error('API Key inválida. Verifícala en Configuración.');
+      if (resp.status === 429) throw new Error('Límite de uso alcanzado. Intenta en unos minutos.');
+      throw new Error(msg);
+    }
+
+    const data    = await resp.json();
+    const rawText = data?.content?.[0]?.text || '';
+
+    let analysis;
+    try {
+      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+      analysis = JSON.parse(jsonMatch ? jsonMatch[0] : rawText);
+    } catch {
+      throw new Error('No se pudo interpretar la respuesta. Intenta de nuevo.');
+    }
+
+    hideLoading();
+    saveToHistory(capturedDataUrl, analysis);
+    showResult(capturedDataUrl, analysis);
+
+  } catch (e) {
+    hideLoading();
+    toast(e.message || 'Error al conectar con la IA', 'error');
+    console.error(e);
+  }
+}
+
+// ──────────────────────────────────────────────
+// RENDER RESULT
+// ──────────────────────────────────────────────
+function showResult(imgDataUrl, a) {
+  $('result-img').src = imgDataUrl;
+  $('result-plant-name').textContent = a.nombre_comun || 'Planta desconocida';
+  $('result-scientific').textContent = a.nombre_cientifico || '';
+
+  const statusMap = {
+    saludable:   { cls: 'healthy',  icon: '✅', label: 'Saludable' },
+    advertencia: { cls: 'warning',  icon: '⚠️', label: 'Necesita atención' },
+    critico:     { cls: 'critical', icon: '🚨', label: 'Estado crítico' },
+  };
+  const s = statusMap[a.estado_salud] || statusMap.advertencia;
+
+  let html = `<span class="status-badge ${s.cls}">${s.icon} ${s.label}</span>`;
+
+  if (a.descripcion) {
+    html += `<div class="result-card">
+      <div class="result-card-title">Descripción</div>
+      <div class="result-description">${escHtml(a.descripcion)}</div>
+    </div>`;
+  }
+
+  if (a.problemas?.length) {
+    html += `<div class="result-card">
+      <div class="result-card-title">Problemas detectados</div>
+      <div class="issue-list">`;
+    a.problemas.forEach(p => {
+      html += `<div class="issue-item">
+        <span class="issue-icon">🔴</span>
+        <div class="issue-text">
+          <span class="issue-name">${escHtml(p.nombre)}</span>
+          ${escHtml(p.descripcion)}
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (a.remedios?.length) {
+    const title = a.estado_salud === 'saludable' ? 'Cuidados recomendados' : 'Remedios y tratamiento';
+    html += `<div class="result-card">
+      <div class="result-card-title">${title}</div>
+      <div class="remedy-list">`;
+    a.remedios.forEach((r, i) => {
+      html += `<div class="remedy-item">
+        <div class="remedy-number">${i + 1}</div>
+        <div class="remedy-text"><strong>${escHtml(r.titulo)}</strong>${escHtml(r.detalle)}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (a.cuidados) {
+    const c = a.cuidados;
+    html += `<div class="result-card">
+      <div class="result-card-title">Cuidados generales</div>
+      <div class="care-grid">
+        <div class="care-item"><span class="care-icon">☀️</span><span class="care-label">Luz</span><span class="care-value">${escHtml(c.luz || '—')}</span></div>
+        <div class="care-item"><span class="care-icon">💧</span><span class="care-label">Riego</span><span class="care-value">${escHtml(c.riego || '—')}</span></div>
+        <div class="care-item"><span class="care-icon">💨</span><span class="care-label">Humedad</span><span class="care-value">${escHtml(c.humedad || '—')}</span></div>
+        <div class="care-item"><span class="care-icon">🌡️</span><span class="care-label">Temperatura</span><span class="care-value">${escHtml(c.temperatura || '—')}</span></div>
+      </div>
+    </div>`;
+  }
+
+  html += `<button class="btn-primary" id="btn-new-scan">📷 Nueva fotografía</button>`;
+
+  $('result-content').innerHTML = html;
+  $('btn-new-scan').addEventListener('click', () => showScreen('camera'));
+  showScreen('result');
+}
+
+// ──────────────────────────────────────────────
+// HISTORY
+// ──────────────────────────────────────────────
+function saveToHistory(imgDataUrl, analysis) {
+  const history = store.get('history', []);
+  history.unshift({ id: Date.now(), date: new Date().toISOString(), img: imgDataUrl, analysis });
+  store.set('history', history.slice(0, 30));
+}
+
+function renderHistory() {
+  const history = store.get('history', []);
+  const list    = $('history-list');
+  if (!history.length) {
+    list.innerHTML = `<div class="history-empty">
+      <span class="empty-icon">🌱</span>
+      <p>Aún no tienes diagnósticos.<br>¡Captura tu primera planta!</p>
+      <button class="btn-primary" id="btn-go-camera" style="margin-top:8px;max-width:220px">📷 Ir a cámara</button>
+    </div>`;
+    $('btn-go-camera').addEventListener('click', () => showScreen('camera'));
     return;
   }
-  // Show place info sheet with "Reportar precio" CTA
-  document.getElementById("stn-content").innerHTML = `
-    <div style="display:flex;gap:13px;align-items:center;margin-bottom:16px">
-      <div style="width:48px;height:48px;border-radius:13px;background:#FFF0E6;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛽</div>
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">${place.name}</div>
-        <div style="color:#999;font-size:12px;margin-top:2px">${place.vicinity||""}</div>
-        <span class="source-google">🗺️ Google Maps</span>
-        ${place.rating ? `<div style="font-size:12px;color:#F5A623;margin-top:4px">⭐ ${place.rating} (${place.user_ratings_total||0} reseñas)</div>` : ""}
+
+  const statusMap = {
+    saludable:   { cls: 'healthy',  icon: '✅', label: 'Saludable' },
+    advertencia: { cls: 'warning',  icon: '⚠️', label: 'Atención' },
+    critico:     { cls: 'critical', icon: '🚨', label: 'Crítico' },
+  };
+
+  list.innerHTML = history.map(item => {
+    const s       = statusMap[item.analysis?.estado_salud] || statusMap.advertencia;
+    const d       = new Date(item.date);
+    const dateStr = d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short', year: 'numeric' });
+    const thumb   = item.img
+      ? `<img class="history-thumb" src="${item.img}" alt="" loading="lazy" />`
+      : `<div class="history-thumb-placeholder">🌿</div>`;
+    return `<div class="history-card" data-id="${item.id}" tabindex="0">
+      ${thumb}
+      <div class="history-info">
+        <div class="history-plant">${escHtml(item.analysis?.nombre_comun || 'Planta')}</div>
+        <div class="history-date">${dateStr}</div>
+        <div class="history-status"><span class="status-badge ${s.cls}" style="padding:3px 10px;font-size:.75rem">${s.icon} ${s.label}</span></div>
       </div>
-    </div>
-    <div style="background:#f8f8f8;border-radius:14px;padding:16px;text-align:center;margin-bottom:16px">
-      <div style="font-size:28px;margin-bottom:6px">💰</div>
-      <div style="font-weight:800;font-size:15px;margin-bottom:4px">Sin precio reportado aún</div>
-      <div style="color:#999;font-size:13px">¡Sé el primero en informar el precio aquí!</div>
-    </div>
-    <div style="display:flex;gap:9px">
-      <button class="btn-s" style="flex:1;padding:12px" onclick="closeSheet('stn-overlay')">Cerrar</button>
-      <button class="btn-p" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px" onclick="closeSheet('stn-overlay');reportFromPlace(${place.geometry.location.lat()},${place.geometry.location.lng()},'${encodeURIComponent(place.name)}','${encodeURIComponent(place.vicinity||"")}')">
-        ➕ Informar precio
-      </button>
     </div>`;
-  openSheet("stn-overlay");
-}
+  }).join('');
 
-function reportFromPlace(lat, lng, encodedName, encodedAddr) {
-  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
-  pendingLL = { lat, lng };
-  openReportSheet(lat, lng, decodeURIComponent(encodedName), decodeURIComponent(encodedAddr));
-}
-
-// ── LOCATE + SEARCH ───────────────────────────────────────────────────────────
-function locateAndSearch() {
-  if (!navigator.geolocation) { showToast("Geolocalización no disponible","err"); return; }
-  const btn = document.getElementById("locate-btn");
-  btn.style.animation = "spin 1s linear infinite"; btn.textContent = "⏳";
-
-  navigator.geolocation.getCurrentPosition(pos => {
-    btn.style.animation = ""; btn.textContent = "📍";
-    const ll = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-    gmap.panTo(ll); gmap.setZoom(14);
-
-    if (userMarker) userMarker.setMap(null);
-    userMarker = new google.maps.Marker({
-      position: ll, map: gmap,
-      icon: { path: google.maps.SymbolPath.CIRCLE, scale:9, fillColor:"#4A90D9", fillOpacity:1, strokeColor:"#fff", strokeWeight:2.5 },
-      title: "Tu ubicación", zIndex:999
+  list.querySelectorAll('.history-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id   = parseInt(card.dataset.id);
+      const item = history.find(h => h.id === id);
+      if (!item) return;
+      capturedDataUrl = item.img;
+      showResult(item.img, item.analysis);
     });
-    showToast("📍 Ubicación obtenida — buscando bencineras…");
-    // idle listener will trigger searchNearbyStations
-  }, () => {
-    btn.style.animation = ""; btn.textContent = "📍";
-    document.getElementById("map-loading").style.display = "none";
-    showToast("No se pudo obtener ubicación","err");
-    searchNearbyStations(); // search around default center anyway
-  }, { enableHighAccuracy:true, timeout:8000 });
-}
-
-// ── REPORT MODE ───────────────────────────────────────────────────────────────
-function startPinMode() {
-  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
-  reportMode = true;
-  showView("map");
-  document.getElementById("filter-bar").style.display = "none";
-  document.getElementById("report-mode-bar").classList.remove("hidden");
-  document.getElementById("zoom-ctrl").style.display = "none";
-  document.getElementById("locate-btn").style.display = "none";
-  document.getElementById("fab-container").innerHTML = `
-    <div class="fab-row">
-      <button class="btn-s" style="flex:1;padding:12px" onclick="cancelPinMode()">✕ Cancelar</button>
-      <button class="btn-p" id="confirm-pin-btn" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px;opacity:.5" onclick="confirmPin()" disabled>✅ Confirmar</button>
-    </div>`;
-  gmap.setOptions({ draggableCursor:"crosshair" });
-  showToast("Toca una bencinera o el mapa para marcar");
-}
-
-function placeReportPin(lat, lng) {
-  if (reportMarker) reportMarker.setMap(null);
-  reportMarker = new google.maps.Marker({
-    position:{lat,lng}, map:gmap, draggable:true,
-    animation: google.maps.Animation.DROP,
-    icon:{
-      url:"data:image/svg+xml;utf8,"+encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
-          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#FF6B35"/><stop offset="1" stop-color="#F5A623"/>
-          </linearGradient></defs>
-          <path d="M18 0C8 0 0 8 0 18c0 12 18 30 18 30S36 30 36 18C36 8 28 0 18 0z" fill="url(#g)"/>
-          <circle cx="18" cy="18" r="7" fill="white" opacity=".9"/>
-        </svg>`),
-      anchor: new google.maps.Point(18,48),
-    }, zIndex:1000
-  });
-  reportMarker.addListener("dragend", e => { pendingLL = {lat:e.latLng.lat(),lng:e.latLng.lng()}; });
-  pendingLL = {lat,lng};
-  const btn = document.getElementById("confirm-pin-btn");
-  if (btn) { btn.disabled=false; btn.style.opacity="1"; }
-}
-
-function confirmPin() {
-  if (!pendingLL) return;
-  const name = pendingPlace ? pendingPlace.name : "";
-  const addr = pendingPlace ? (pendingPlace.vicinity||"") : "";
-  exitPinMode();
-  openReportSheet(pendingLL.lat, pendingLL.lng, name, addr);
-}
-
-function cancelPinMode() { exitPinMode(); pendingLL=null; pendingPlace=null; }
-
-function exitPinMode() {
-  reportMode = false;
-  if (reportMarker) { reportMarker.setMap(null); reportMarker=null; }
-  document.getElementById("filter-bar").style.display="";
-  document.getElementById("report-mode-bar").classList.add("hidden");
-  document.getElementById("zoom-ctrl").style.display="";
-  document.getElementById("locate-btn").style.display="";
-  document.getElementById("fab-container").innerHTML =
-    `<button class="fab" onclick="startPinMode()"><span>➕</span> Informar precio aquí</button>`;
-  gmap.setOptions({draggableCursor:null});
-}
-
-function startGpsReport() {
-  if (!currentUser) { showView("login"); showToast("Inicia sesión primero","err"); return; }
-  document.getElementById("gps-card-sub").textContent="Obteniendo ubicación...";
-  navigator.geolocation.getCurrentPosition(pos=>{
-    document.getElementById("gps-card-sub").textContent="Reporta desde donde estás parado ahora";
-    const ll={lat:pos.coords.latitude,lng:pos.coords.longitude};
-    pendingLL=ll; pendingPlace=null;
-    showView("map");
-    gmap.panTo(ll);
-    openReportSheet(ll.lat,ll.lng,"","");
-  },()=>{
-    document.getElementById("gps-card-sub").textContent="Reporta desde donde estás parado ahora";
-    showToast("No se pudo obtener ubicación","err");
-  },{enableHighAccuracy:true,timeout:8000});
-}
-
-// ── REPORT FORM SHEET ─────────────────────────────────────────────────────────
-function openReportSheet(lat, lng, prefillName="", prefillAddr="", existingDocId="") {
-  const regionOpts = REGIONS.map(r=>`<option value="${r}"${r==="Metropolitana"?" selected":""}>${r}</option>`).join("");
-  const fuelOpts   = FUEL_TYPES.map(f=>`<option value="${f}"${f===selectedFuel?" selected":""}>${f}</option>`).join("");
-  document.getElementById("rep-content").innerHTML = `
-    <input type="hidden" id="r-docid" value="${existingDocId}"/>
-    <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;margin-bottom:3px">${existingDocId?"✏️ Actualizar precio":"⛽ Informar precio"}</div>
-    <div style="color:#999;font-size:13px;margin-bottom:14px">Completa los datos de la estación</div>
-    <div class="loc-info">
-      <span style="font-size:22px">📍</span>
-      <div>
-        <div style="font-weight:700;font-size:13px">${prefillName||"Ubicación seleccionada"}</div>
-        <div style="font-size:11px;color:#999">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
-      </div>
-    </div>
-    <div class="field"><label>🏪 Nombre de la estación</label>
-      <input class="inp" id="r-name" placeholder="ej: Copec Providencia" value="${prefillName}"/></div>
-    <div class="field"><label>🏙️ Dirección</label>
-      <input class="inp" id="r-addr" placeholder="ej: Av. Providencia 1234" value="${prefillAddr}"/></div>
-    <div class="row2">
-      <div class="field"><label>⛽ Combustible</label><select class="sel" id="r-fuel">${fuelOpts}</select></div>
-      <div class="field"><label>💰 Precio $/L</label><input class="inp" id="r-price" type="number" placeholder="1050" min="500" max="3000"/></div>
-    </div>
-    <div class="field"><label>🗺️ Región</label><select class="sel" id="r-region">${regionOpts}</select></div>
-    <div style="background:linear-gradient(135deg,rgba(255,107,53,.07),rgba(245,166,35,.07));border-radius:13px;padding:13px;margin-bottom:18px;display:flex;gap:9px;align-items:center;border:1.5px solid rgba(255,107,53,.18)">
-      <span style="font-size:22px">🏆</span>
-      <span style="font-size:13px;font-weight:600;color:#555">Ganarás <strong style="color:var(--or)">+10 puntos</strong> por informar</span>
-    </div>
-    <button class="btn-p" onclick="submitReport(${lat},${lng})">Informar precio ⛽</button>
-    <button class="btn-s" onclick="closeSheet('rep-overlay')">Cancelar</button>`;
-  openSheet("rep-overlay");
-}
-
-async function submitReport(lat, lng) {
-  if (!currentUser) { showToast("Debes iniciar sesión primero","err"); closeSheet("rep-overlay"); showView("login"); return; }
-  const name   = document.getElementById("r-name").value.trim();
-  const addr   = document.getElementById("r-addr").value.trim();
-  const fuel   = document.getElementById("r-fuel").value;
-  const price  = parseInt(document.getElementById("r-price").value);
-  const region = document.getElementById("r-region").value;
-  if (!name) { showToast("Ingresa el nombre de la estación","err"); return; }
-  if (!price||price<500||price>3000) { showToast("Precio inválido (500–3000)","err"); return; }
-
-  const btn = document.querySelector("#rep-overlay .btn-p");
-  if (btn) { btn.textContent = "⏳ Guardando..."; btn.disabled = true; }
-
-  try {
-    // Usar docId directo si existe (actualización), sino crear nuevo
-    const existingDocId = document.getElementById("r-docid")?.value || "";
-    let isUpdate = false;
-
-    if (existingDocId) {
-      // Actualizar documento existente directamente por ID
-      await fbDb.collection("precios").doc(existingDocId).update({
-        precio:        price,
-        nombre:        name,
-        direccion:     addr || "Sin dirección",
-        region,
-        combustible:   fuel,
-        usuarioId:     currentUser.uid,
-        usuarioNombre: currentUser.name,
-        votos:         firebase.firestore.FieldValue.increment(1),
-        timestamp:     firebase.firestore.FieldValue.serverTimestamp()
-      });
-      isUpdate = true;
-    } else {
-      // Crear nuevo documento
-      await fbDb.collection("precios").add({
-        nombre:        name,
-        direccion:     addr || "Sin dirección",
-        region,
-        combustible:   fuel,
-        precio:        price,
-        lat, lng,
-        placeId:       pendingPlace?.place_id || null,
-        usuarioId:     currentUser.uid,
-        usuarioNombre: currentUser.name,
-        votos:         1,
-        timestamp:     firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
-
-    // Actualizar puntos y reportes del usuario
-    await fbDb.collection("usuarios").doc(currentUser.uid).update({
-      reportes: firebase.firestore.FieldValue.increment(1),
-      puntos:   firebase.firestore.FieldValue.increment(10)
-    });
-
-    currentUser.reports++;
-    currentUser.pts = (currentUser.pts||0) + 10;
-    pendingPlace = null;
-
-    // Quitar overlay de Google Places si corresponde
-    placeOverlays = placeOverlays.filter(o => {
-      try {
-        if (!o.place || !o.place.geometry) return true;
-        const match = (pendingPlace && o.place.place_id === pendingPlace.place_id) ||
-          (Math.abs(o.place.geometry.location.lat()-lat)<0.0005 &&
-           Math.abs(o.place.geometry.location.lng()-lng)<0.0005);
-        if (match) o.setMap(null);
-        return !match;
-      } catch(e) { return true; }
-    });
-
-    closeSheet("rep-overlay");
-    gmap.panTo({lat, lng});
-    showToast(isUpdate ? "¡Precio actualizado! +10 pts 🏆" : "¡Precio informado! +10 pts 🏆");
-    renderHeader();
-
-  } catch(e) {
-    showToast("Error al guardar: " + e.message, "err");
-    if (btn) { btn.textContent = "Informar precio ⛽"; btn.disabled = false; }
-  }
-}
-
-// ── STATION DETAIL SHEET ──────────────────────────────────────────────────────
-function showStationSheet(s) {
-  const pricesHtml = Object.entries(s.prices).map(([f,p])=>`
-    <div style="background:${FUEL_COLORS[f]}18;border-radius:13px;padding:12px 13px;border:2px solid ${FUEL_COLORS[f]}40;text-align:center">
-      <div style="font-size:11px;font-weight:700;color:${FUEL_COLORS[f]}">Bencina ${f}</div>
-      <div style="font-weight:900;font-size:22px">$${p.toLocaleString("es-CL")}</div>
-      <div style="font-size:11px;color:#999">por litro</div>
-    </div>`).join("");
-  document.getElementById("stn-content").innerHTML = `
-    <div style="display:flex;gap:13px;align-items:center;margin-bottom:15px">
-      <div style="width:48px;height:48px;border-radius:13px;background:#FFF0E6;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">⛽</div>
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">${s.name}</div>
-        <div style="color:#999;font-size:12px;margin-top:2px">${s.address}</div>
-        <span class="${s.fromGoogle?"source-google":"source-user"}">${s.fromGoogle?"🗺️ Google Maps":"👤 Reportado por comunidad"}</span>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px">${pricesHtml}</div>
-    <div style="background:#f7f7f7;border-radius:13px;padding:11px 13px;margin-bottom:14px;display:flex;gap:9px;align-items:center">
-      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--yl));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;flex-shrink:0">${s.by[0].toUpperCase()}</div>
-      <div><div style="font-weight:700;font-size:13px">${s.by}</div><div style="font-size:11px;color:#999">${s.ago} · ${s.v} votos ✓</div></div>
-    </div>
-    <div style="display:flex;gap:9px">
-      <button class="btn-s" style="flex:1;padding:12px" onclick="closeSheet('stn-overlay')">Cerrar</button>
-      ${currentUser ? `<button class="btn-s" style="flex:1;padding:12px;color:#FF4757" onclick="addFavorite(${JSON.stringify({name:s.name,address:s.address,placeId:s.placeId||s.id}).replace(/"/g,'&quot;')})">❤️ Fav</button>` : ""}
-      <button class="btn-p" style="flex:2;padding:12px;margin:0;border-radius:14px;font-size:13px"
-        onclick="closeSheet('stn-overlay');pendingLL={lat:${s.lat},lng:${s.lng}};openReportSheet(${s.lat},${s.lng},'${s.name.replace(/'/g,"\\'")}','${s.address.replace(/'/g,"\\'")}','${s.docId||""}')">
-        Actualizar precio ✏️
-      </button>
-    </div>`;
-  openSheet("stn-overlay");
-}
-
-// ── RANKING ───────────────────────────────────────────────────────────────────
-function setupRankingSelects() {
-  document.getElementById("rank-fuel").innerHTML = FUEL_TYPES.map(f=>`<option value="${f}"${f==="95"?" selected":""}>${f}</option>`).join("");
-  document.getElementById("rank-region").innerHTML =
-    `<option value="Todas">Todas las regiones</option>`+REGIONS.map(r=>`<option value="${r}">${r}</option>`).join("");
-}
-
-function renderRanking() {
-  const fuel=document.getElementById("rank-fuel").value;
-  const region=document.getElementById("rank-region").value;
-  const list=[...stations].filter(s=>s.prices[fuel]&&(region==="Todas"||s.region===region)).sort((a,b)=>a.prices[fuel]-b.prices[fuel]);
-  const medals=["🥇","🥈","🥉"],mbg=["#FFF8DC","#F5F5F5","#FFF0E6"];
-  let pod="";
-  if(list.length>=3){
-    const or=[list[1],list[0],list[2]],hs=[85,115,65],cols=["#C0C0C0","#FFD700","#CD7F32"],emj=["🥈","🥇","🥉"];
-    pod=`<div class="podium">${or.map((s,i)=>`
-      <div class="pod-item">
-        <div style="font-size:10px;font-weight:700;color:#999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name.split(" ")[0]}</div>
-        <div style="font-size:18px">${emj[i]}</div>
-        <div style="font-weight:900;font-size:13px;color:${FUEL_COLORS[fuel]}">$${s.prices[fuel].toLocaleString("es-CL")}</div>
-        <div class="pod-bar" style="background:${cols[i]};height:${hs[i]}px">${i===1?1:i===0?2:3}</div>
-      </div>`).join("")}</div>`;
-  }
-  document.getElementById("podium-el").innerHTML=pod;
-  document.getElementById("ranking-list").innerHTML=list.map((s,i)=>`
-    <div class="rank-row" style="background:${i<3?mbg[i]:"#fff"};animation-delay:${i*.04}s"
-      onclick="showView('map');gmap.panTo({lat:${s.lat},lng:${s.lng}});gmap.setZoom(15)">
-      <div class="rank-num" style="background:${i===0?"#FFD700":i===1?"#C0C0C0":i===2?"#CD7F32":"#f0f0f0"};color:${i<3?"#fff":"#aaa"};font-size:${i<3?16:13}px">${i<3?medals[i]:i+1}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:800;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</div>
-        <div style="font-size:11px;color:#999;margin-top:2px">${s.region} · ${s.ago}</div>
-      </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div style="font-weight:900;font-size:19px;color:${i===0?"#FFD700":FUEL_COLORS[fuel]}">$${s.prices[fuel].toLocaleString("es-CL")}</div>
-        ${i>0?`<div style="font-size:11px;color:var(--or)">+$${(s.prices[fuel]-list[0].prices[fuel]).toLocaleString("es-CL")}</div>`:`<div style="font-size:11px;color:var(--gr);font-weight:700">✓ Más barato</div>`}
-      </div>
-    </div>`).join("")||`<div style="text-align:center;color:#ccc;padding:40px;font-size:14px">Sin datos aún — ¡reporta el primero!</div>`;
-}
-
-// ── AUTH ──────────────────────────────────────────────────────────────────────
-// ── TOGGLE AUTH MODE ──────────────────────────────────────────────────────────
-function toggleAuth() {
-  isReg=!isReg;
-  document.getElementById("name-field").classList.toggle("hidden",!isReg);
-  document.getElementById("pass-strength").classList.toggle("hidden",!isReg);
-  document.getElementById("login-title").textContent=isReg?"Crear cuenta":"¡Bienvenido!";
-  document.getElementById("login-sub").textContent=isReg?"Únete a Tanque Lleno":"Inicia sesión para informar un precio";
-  document.getElementById("login-submit-btn").textContent=isReg?"🚀 Crear cuenta":"🔑 Iniciar sesión";
-  document.getElementById("toggle-link").textContent=isReg?"Inicia sesión":"Regístrate";
-  document.querySelector(".toggle-auth").childNodes[0].nodeValue=isReg?"¿Ya tienes cuenta? ":"¿No tienes cuenta? ";
-  // Reset pass field and strength
-  document.getElementById("f-pass").value="";
-  checkPass("");
-}
-
-async function doLogin() {
-  const email = document.getElementById("f-email").value.trim();
-  const pass  = document.getElementById("f-pass").value;
-  const name  = document.getElementById("f-name").value.trim();
-  if (!email||!pass) { showToast("Completa todos los campos","err"); return; }
-  if (isReg&&!name) { showToast("Ingresa tu nombre","err"); return; }
-
-  // Validar fortaleza en registro
-  if (isReg) {
-    const rules = [pass.length>=8, /[A-Z]/.test(pass), /[0-9]/.test(pass), /[^A-Za-z0-9]/.test(pass)];
-    const score = rules.filter(Boolean).length;
-    if (score < 3) { showToast("La contraseña es muy débil — agrega mayúsculas, números o símbolos","err"); return; }
-  }
-
-  const btn = document.getElementById("login-submit-btn");
-  btn.textContent = "⏳ Cargando..."; btn.disabled = true;
-
-  try {
-    let fbUser;
-    if (isReg) {
-      const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
-      fbUser = cred.user;
-      // Guardar perfil en Firestore
-      await fbDb.collection("usuarios").doc(fbUser.uid).set({
-        nombre: name, email, puntos: 0, reportes: 0,
-        creado: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } else {
-      const cred = await fbAuth.signInWithEmailAndPassword(email, pass);
-      fbUser = cred.user;
-    }
-    // onAuthStateChanged se encarga del resto
-  } catch(e) {
-    const msgs = {
-      "auth/email-already-in-use": "Ese email ya está registrado",
-      "auth/wrong-password": "Contraseña incorrecta",
-      "auth/user-not-found": "No existe una cuenta con ese email",
-      "auth/weak-password": "La contraseña debe tener al menos 6 caracteres",
-      "auth/invalid-email": "Email inválido",
-    };
-    showToast(msgs[e.code] || "Error: " + e.message, "err");
-    btn.textContent = isReg ? "🚀 Crear cuenta" : "🔑 Iniciar sesión";
-    btn.disabled = false;
-  }
-}
-
-// ── PROFILE ───────────────────────────────────────────────────────────────────
-function getEquipped() {
-  return currentUser?.cosmetics || { avatar:null, title:null, frame:null, pinColor:"#FF6B35" };
-}
-
-function renderAvatarEl(size=72) {
-  const eq  = getEquipped();
-  const av  = eq.avatar ? AVATARS.find(a=>a.id===eq.avatar) : null;
-  const fr  = eq.frame  ? FRAMES.find(f=>f.id===eq.frame)   : null;
-  const border = fr ? fr.style : "3px solid rgba(255,255,255,.5)";
-  const glow   = fr?.glow ? `box-shadow:${fr.glow};` : "";
-  const rainbow = fr?.rainbow ? `background:linear-gradient(white,white) padding-box, linear-gradient(135deg,#FF6B35,#FFD700,#00C896,#4A90D9,#9B59B6) border-box;border:3px solid transparent;` : "";
-  const inner  = av ? `<span style="font-size:${size*0.45}px">${av.emoji}</span>` : `<span style="font-size:${size*0.38}px;font-weight:900">${currentUser.av}</span>`;
-  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;${rainbow||`border:${border};`}${glow}">${inner}</div>`;
-}
-
-function renderTitleBadge() {
-  const eq = getEquipped();
-  if (!eq.title) return "";
-  const t = TITLES.find(t=>t.id===eq.title);
-  if (!t) return "";
-  return `<div style="display:inline-flex;align-items:center;background:${t.bg};color:${t.color};border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700;margin-top:5px">${t.label}</div>`;
-}
-
-function renderProfile() {
-  if(!currentUser){showView("login");return;}
-  const u   = currentUser;
-  const pts = u.pts || 0;
-  const level = pts>=1000?"🏅 Leyenda":pts>=500?"⭐ Experto":pts>=200?"🔥 Crack":pts>=50?"🌱 Colaborador":"🆕 Nuevo";
-
-  document.getElementById("prof-hero").innerHTML=`
-    ${renderAvatarEl(76)}
-    <div style="font-family:'Syne',sans-serif;font-size:21px;font-weight:800">${u.name}</div>
-    ${renderTitleBadge()}
-    <div style="opacity:.8;font-size:12px;margin-top:4px">${u.email}</div>`;
-
-  document.getElementById("prof-stats").innerHTML=[
-    ["⛽", u.reports||0, "Informados"],
-    ["🏆", pts,          "Puntos"],
-    ["⭐", Math.min(5,Math.floor((u.reports||0)/2)+1), "Estrellas"]
-  ].map(([ic,v,l])=>`
-    <div class="stat-card"><div style="font-size:20px">${ic}</div><div style="font-weight:900;font-size:20px;color:var(--or)">${v}</div><div style="font-size:11px;color:#999;font-weight:600">${l}</div></div>`).join("");
-
-  const pct = Math.min(100,((u.reports||0)/20)*100);
-  const favs = (u.favorites||[]);
-
-  document.getElementById("prof-body").innerHTML=`
-    <!-- Nivel -->
-    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.06)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-weight:800;font-size:14px">Nivel</div>
-        <div style="background:#FFF8DC;color:var(--or);font-weight:700;font-size:11px;padding:3px 11px;border-radius:20px">${level}</div>
-      </div>
-      <div style="background:#f0f0f0;border-radius:99px;height:9px;overflow:hidden">
-        <div style="background:linear-gradient(90deg,var(--or),var(--yl));height:100%;border-radius:99px;width:${pct}%"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:#999"><span>${u.reports||0} precios informados</span><span>Meta: 20</span></div>
-    </div>
-
-    <!-- Tienda de cosméticos -->
-    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.06)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div style="font-weight:800;font-size:15px">🎨 Cosméticos</div>
-        <div style="background:linear-gradient(135deg,var(--or),var(--yl));color:#fff;border-radius:20px;padding:3px 12px;font-size:12px;font-weight:700">🏆 ${pts} pts</div>
-      </div>
-
-      <!-- Avatares -->
-      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:8px">AVATARES</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        ${AVATARS.map(a=>{
-          const owned    = pts >= a.pts || a.pts===0;
-          const equipped = (u.cosmetics?.avatar===a.id);
-          return `<div onclick="${owned?`equipCosmetic('avatar','${a.id}')`:`showToast('Necesitas ${a.pts} pts','err')`}"
-            style="width:44px;height:44px;border-radius:50%;background:${equipped?"linear-gradient(135deg,var(--or),var(--yl))":"#f5f5f5"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:2px solid ${equipped?"var(--or)":"#e8e8f0"};position:relative;transition:all .2s">
-            <span style="font-size:20px;${!owned?"filter:grayscale(1);opacity:.4":""}">${a.emoji}</span>
-            ${!owned?`<div style="position:absolute;bottom:-2px;right:-2px;background:var(--or);color:#fff;border-radius:99px;font-size:8px;padding:1px 4px;font-weight:700">${a.pts}</div>`:""}
-            ${equipped?`<div style="position:absolute;top:-4px;right:-4px;background:#00C896;color:#fff;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:8px">✓</div>`:""}
-          </div>`;
-        }).join("")}
-      </div>
-
-      <!-- Títulos -->
-      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:8px">TÍTULOS</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-        ${TITLES.map(t=>{
-          const owned    = pts >= t.pts;
-          const equipped = (u.cosmetics?.title===t.id);
-          return `<div onclick="${owned?`equipCosmetic('title','${t.id}')`:`showToast('Necesitas ${t.pts} pts','err')`}"
-            style="display:inline-flex;align-items:center;background:${equipped?t.color:t.bg};color:${equipped?"#fff":t.color};border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid ${t.color};opacity:${owned?1:.45};transition:all .2s;position:relative">
-            ${t.label}
-            ${!owned?`<span style="font-size:10px;margin-left:4px">(${t.pts}pts)</span>`:""}
-          </div>`;
-        }).join("")}
-      </div>
-
-      <!-- Marcos -->
-      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:8px">MARCOS</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        ${FRAMES.map(f=>{
-          const owned    = pts >= f.pts;
-          const equipped = (u.cosmetics?.frame===f.id);
-          const rainbow  = f.rainbow ? "background:linear-gradient(white,white) padding-box,linear-gradient(135deg,#FF6B35,#FFD700,#00C896,#4A90D9,#9B59B6) border-box;border:3px solid transparent;" : `border:${f.style};`;
-          return `<div onclick="${owned?`equipCosmetic('frame','${f.id}')`:`showToast('Necesitas ${f.pts} pts','err')`}"
-            style="width:40px;height:40px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;${rainbow}opacity:${owned?1:.4};position:relative;transition:all .2s;font-size:11px;font-weight:700;color:#666">
-            ${equipped?`<span style="color:var(--or)">✓</span>`:f.name.slice(0,2)}
-            ${!owned?`<div style="position:absolute;bottom:-2px;right:-2px;background:var(--or);color:#fff;border-radius:99px;font-size:8px;padding:1px 4px;font-weight:700">${f.pts}</div>`:""}
-          </div>`;
-        }).join("")}
-      </div>
-
-      <!-- Color del pin -->
-      <div style="font-size:11px;font-weight:700;color:#999;margin-bottom:8px">COLOR DEL PIN EN EL MAPA</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${PIN_COLORS.map(p=>{
-          const owned    = pts >= p.pts;
-          const equipped = (u.cosmetics?.pinColor===p.color);
-          return `<div onclick="${owned?`equipCosmetic('pinColor','${p.color}')`:`showToast('Necesitas ${p.pts} pts','err')`}"
-            style="width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${p.color};border:2px solid ${equipped?"#fff":"rgba(255,255,255,.4)"};cursor:pointer;opacity:${owned?1:.4};outline:${equipped?"3px solid "+p.color:"none"};outline-offset:2px;transition:all .2s">
-          </div>`;
-        }).join("")}
-      </div>
-    </div>
-
-    <!-- Bencineras favoritas -->
-    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.06)">
-      <div style="font-weight:800;font-size:15px;margin-bottom:10px">❤️ Favoritas</div>
-      ${favs.length===0
-        ? `<div style="color:#bbb;font-size:13px;text-align:center;padding:12px 0">Aún no tienes bencineras favoritas.<br>Toca una estación y agrégala.</div>`
-        : favs.map(f=>`
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5">
-            <span style="font-size:20px">⛽</span>
-            <div style="flex:1;min-width:0">
-              <div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${f.name}</div>
-              <div style="font-size:11px;color:#999">${f.address||""}</div>
-            </div>
-            <button onclick="removeFavorite('${f.placeId}')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:18px">×</button>
-          </div>`).join("")
-      }
-    </div>
-
-    <!-- Historial -->
-    <div style="background:#fff;border-radius:16px;padding:16px;margin-bottom:13px;box-shadow:0 2px 10px rgba(0,0,0,.06)">
-      <div style="font-weight:800;font-size:15px;margin-bottom:10px">📋 Mis reportes</div>
-      <div id="history-list">
-        ${stations.filter(s=>s.by===u.name).slice(0,10).map(s=>`
-          <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f5f5f5">
-            <div style="width:8px;height:8px;border-radius:50%;background:${FUEL_COLORS[Object.keys(s.prices)[0]]||"#ccc"};flex-shrink:0"></div>
-            <div style="flex:1;min-width:0">
-              <div style="font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</div>
-              <div style="font-size:11px;color:#999">${Object.entries(s.prices).map(([f,p])=>`${f}: $${p.toLocaleString("es-CL")}`).join(" · ")} · ${s.ago}</div>
-            </div>
-          </div>`).join("") || `<div style="color:#bbb;font-size:13px;text-align:center;padding:12px 0">Aún no has informado precios</div>`}
-      </div>
-    </div>
-
-    <button class="btn-p" onclick="showView('report')" style="margin-bottom:10px">⛽ Informar nuevo precio</button>
-    <button class="btn-s" onclick="doLogout()">Cerrar sesión</button>`;
-}
-
-async function doLogout() {
-  await fbAuth.signOut();
-  currentUser = null;
-  renderHeader(); showView("map");
-  showToast("¡Hasta luego! 👋");
-}
-
-// ── PASSWORD TOGGLE ───────────────────────────────────────────────────────────
-function togglePass() {
-  const inp  = document.getElementById("f-pass");
-  const show = document.getElementById("eye-show");
-  const hide = document.getElementById("eye-hide");
-  const visible = inp.type === "text";
-  inp.type = visible ? "password" : "text";
-  show.style.display = visible ? "block" : "none";
-  hide.style.display = visible ? "none"  : "block";
-}
-
-// ── PASSWORD STRENGTH ─────────────────────────────────────────────────────────
-function checkPass(val) {
-  if (!isReg) return;
-  const rules = [
-    { ok: val.length >= 8,          text: "8 caracteres mínimo" },
-    { ok: /[A-Z]/.test(val),        text: "Una mayúscula" },
-    { ok: /[0-9]/.test(val),        text: "Un número" },
-    { ok: /[^A-Za-z0-9]/.test(val), text: "Un símbolo (!@#$...)" },
-  ];
-  const score  = rules.filter(r => r.ok).length;
-  const colors = ["#FF4757","#FF6B35","#F5A623","#00C896"];
-  const labels = ["Muy débil","Débil","Regular","Segura 🔒"];
-  const bars   = ["bar1","bar2","bar3","bar4"];
-
-  bars.forEach((id, i) => {
-    document.getElementById(id).style.background = i < score ? colors[score-1] : "#e8e8f0";
-  });
-
-  const lbl = document.getElementById("pass-label");
-  lbl.textContent = val.length ? labels[score-1] || "" : "";
-  lbl.style.color = score > 0 ? colors[score-1] : "#aaa";
-
-  document.getElementById("pass-rules").innerHTML = rules
-    .map(r => `<span style="color:${r.ok?"#00C896":"#ccc"}">${r.ok?"✓":"○"} ${r.text}</span>`)
-    .join("<br>");
-}
-
-// ── HEADER ────────────────────────────────────────────────────────────────────
-function renderHeader() {
-  const userHtml = currentUser
-    ? `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showView('profile')">
-        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
-        <div>
-          <div style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</div>
-          <div style="color:rgba(255,255,255,.7);font-size:10px">🏆 ${currentUser.pts||0} pts</div>
-        </div>
-       </div>`
-    : `<button class="hdr-btn" onclick="showView('login')" style="background:rgba(255,255,255,.2);color:#fff;border:1.5px solid rgba(255,255,255,.4)">Entrar</button>`;
-
-  // Desktop topbar (derecha)
-  const dt = document.getElementById("hdr-right");
-  if (dt) dt.innerHTML = currentUser
-    ? `<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="showView('profile')">
-        <div style="font-size:12px;color:#999">🏆 ${currentUser.pts||0} pts</div>
-        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--or),var(--yl));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
-        <span style="font-weight:700;font-size:14px">${currentUser.name.split(" ")[0]}</span>
-       </div>`
-    : `<button class="hdr-btn" onclick="showView('login')">Entrar</button>`;
-
-  // Sidebar user (desktop)
-  const su = document.getElementById("sidebar-user");
-  if (su) su.innerHTML = userHtml;
-
-  // Mobile header
-  const mr = document.getElementById("hdr-right-mobile");
-  if (mr) mr.innerHTML = currentUser
-    ? `<div style="display:flex;align-items:center;gap:7px;cursor:pointer" onclick="showView('profile')">
-        <div style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:15px">${currentUser.av}</div>
-        <span style="color:#fff;font-weight:700;font-size:13px">${currentUser.name.split(" ")[0]}</span>
-       </div>`
-    : `<button class="hdr-btn" onclick="showView('login')">Entrar</button>`;
-}
-async function equipCosmetic(type, value) {
-  if (!currentUser) return;
-  if (!currentUser.cosmetics) currentUser.cosmetics = {};
-  currentUser.cosmetics[type] = (currentUser.cosmetics[type]===value) ? null : value;
-  try { await fbDb.collection("usuarios").doc(currentUser.uid).update({ cosmetics: currentUser.cosmetics }); } catch(e) {}
-  renderProfile(); renderHeader(); renderMarkers();
-  showToast("¡Cosmético equipado! ✨");
-}
-
-// ── FAVORITES ─────────────────────────────────────────────────────────────────
-async function addFavorite(station) {
-  if (!currentUser) { showView("login"); return; }
-  if (!currentUser.favorites) currentUser.favorites = [];
-  if (currentUser.favorites.find(f=>f.placeId===(station.placeId||station.id))) { showToast("Ya está en favoritas","err"); return; }
-  if (currentUser.favorites.length >= 5) { showToast("Máximo 5 favoritas","err"); return; }
-  currentUser.favorites.push({ name:station.name, address:station.address, placeId:station.placeId||station.id });
-  try { await fbDb.collection("usuarios").doc(currentUser.uid).update({ favorites: currentUser.favorites }); } catch(e) {}
-  showToast("❤️ Agregada a favoritas");
-}
-
-async function removeFavorite(placeId) {
-  if (!currentUser) return;
-  currentUser.favorites = (currentUser.favorites||[]).filter(f=>f.placeId!==placeId);
-  try { await fbDb.collection("usuarios").doc(currentUser.uid).update({ favorites: currentUser.favorites }); } catch(e) {}
-  renderProfile(); showToast("Eliminada de favoritas");
-}
-
-// ── VIEWS ─────────────────────────────────────────────────────────────────────
-const VIEWS=["map","ranking","report","profile","login"];
-const VIEW_TITLES={"map":"🗺️ Mapa","ranking":"🏆 Ranking","report":"📍 Informar precio","profile":"👤 Perfil","login":"🔑 Entrar"};
-
-function showView(name) {
-  if(name==="profile"&&!currentUser) name="login";
-  VIEWS.forEach(v=>{
-    document.getElementById(`view-${v}`).classList.toggle("hidden",v!==name);
-    // Bottom nav (mobile)
-    const n=document.getElementById(`nav-${v}`);
-    if(n) n.classList.toggle("active",v===name);
-    // Sidebar nav (desktop)
-    const sn=document.getElementById(`snav-${v}`);
-    if(sn) sn.classList.toggle("active",v===name);
-  });
-  // Desktop topbar title
-  const tb = document.getElementById("desktop-topbar-title");
-  if(tb) tb.textContent = VIEW_TITLES[name]||"";
-
-  if(name==="ranking") renderRanking();
-  if(name==="profile") renderProfile();
-  if(name==="report") document.getElementById("report-login-warn").classList.toggle("hidden",!!currentUser);
-  if(name==="map"&&gmap) setTimeout(()=>google.maps.event.trigger(gmap,"resize"),50);
-}
-
-// ── SHEETS ────────────────────────────────────────────────────────────────────
-function openSheet(id){document.getElementById(id).classList.add("open");}
-function closeSheet(id){document.getElementById(id).classList.remove("open");}
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-function showToast(msg,type="ok"){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.className="toast"+(type==="err"?" err":"");
-  t.classList.add("show"); clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove("show"),3000);
-}
-
-// ── ZOOM BUTTONS ──────────────────────────────────────────────────────────────
-function gmapZoom(d){if(gmap) gmap.setZoom(gmap.getZoom()+d);}
-
-// ── PWA: SERVICE WORKER ───────────────────────────────────────────────────────
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js")
-      .then(reg => console.log("SW registrado:", reg.scope))
-      .catch(err => console.log("SW error:", err));
   });
 }
 
-// ── PWA: INSTALL PROMPT ───────────────────────────────────────────────────────
-let deferredPrompt = null;
-window.addEventListener("beforeinstallprompt", e => {
-  e.preventDefault();
-  deferredPrompt = e;
-  // Mostrar botón de instalar en el header después de 30s
-  setTimeout(() => {
-    if (!deferredPrompt) return;
-    const r = document.getElementById("hdr-right");
-    if (!r || currentUser) return; // no mostrar si ya está logueado (tiene su avatar)
-    const btn = document.createElement("button");
-    btn.className = "hdr-btn";
-    btn.style.marginRight = "6px";
-    btn.textContent = "📲 Instalar";
-    btn.onclick = async () => {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === "accepted") showToast("¡App instalada! 🎉");
-      deferredPrompt = null;
-      btn.remove();
-    };
-    r.prepend(btn);
-  }, 30000);
+// ──────────────────────────────────────────────
+// SETTINGS
+// ──────────────────────────────────────────────
+function loadSettings() {
+  $('input-apikey').value = store.get('apiKey', '');
+  const model = store.get('model', 'claude-opus-4-8');
+  document.querySelectorAll('input[name=model]').forEach(r => {
+    r.checked = r.value === model;
+    r.closest('.model-option').classList.toggle('selected', r.checked);
+  });
+}
+
+function saveSettings() {
+  const key = $('input-apikey').value.trim();
+  if (!key) { toast('Ingresa tu API Key', 'error'); return; }
+  store.set('apiKey', key);
+  const sel = document.querySelector('input[name=model]:checked');
+  store.set('model', sel ? sel.value : 'claude-opus-4-8');
+  toast('Configuración guardada ✓', 'success');
+  setTimeout(() => showScreen('camera'), 600);
+}
+
+// ──────────────────────────────────────────────
+// LOADING / TOAST
+// ──────────────────────────────────────────────
+function showLoading(msg) { loadingText.textContent = msg; loadingOverlay.classList.add('active'); }
+function hideLoading()    { loadingOverlay.classList.remove('active'); }
+
+let toastTimer;
+function toast(msg, type = '') {
+  toastEl.textContent = msg;
+  toastEl.className   = 'show' + (type ? ' ' + type : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { toastEl.className = ''; }, 3200);
+}
+
+// ──────────────────────────────────────────────
+// UTILS
+// ──────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ──────────────────────────────────────────────
+// EVENTS
+// ──────────────────────────────────────────────
+$('btn-capture').addEventListener('click', captureFrame);
+$('btn-gallery').addEventListener('click', () => fileInput.click());
+$('btn-flip').addEventListener('click', flipCamera);
+$('btn-history').addEventListener('click', () => showScreen('history'));
+$('btn-settings').addEventListener('click', () => showScreen('settings'));
+$('btn-save-settings').addEventListener('click', saveSettings);
+fileInput.addEventListener('change', handleFileSelected);
+
+document.querySelectorAll('input[name=model]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.querySelectorAll('.model-option').forEach(o => o.classList.remove('selected'));
+    r.closest('.model-option').classList.add('selected');
+  });
 });
 
-// ── PWA: SHORTCUT ACTIONS ─────────────────────────────────────────────────────
-const urlParams = new URLSearchParams(window.location.search);
-const action    = urlParams.get("action");
-if (action === "report")  window.addEventListener("mapready", () => showView("report"));
-if (action === "ranking") window.addEventListener("mapready", () => showView("ranking"));
-
-renderHeader();
-</script>
-
-<!-- Firebase SDKs (compat version — funciona sin bundler) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script>
-// ── FIREBASE INIT ─────────────────────────────────────────────────────────────
-const firebaseConfig = {
-  apiKey: "AIzaSyDOfnZa7X4XmSv9ZOTbRufHu7IIEmz7sNk",
-  authDomain: "bencinas-cl-82827.firebaseapp.com",
-  projectId: "bencinas-cl-82827",
-  storageBucket: "bencinas-cl-82827.firebasestorage.app",
-  messagingSenderId: "1068643199062",
-  appId: "1:1068643199062:web:01697d94a73d432b82b3f7",
-  measurementId: "G-9KBCC48EJN"
-};
-firebase.initializeApp(firebaseConfig);
-const fbAuth = firebase.auth();
-const fbDb   = firebase.firestore();
-
-// ── ESCUCHAR CAMBIOS DE SESIÓN ────────────────────────────────────────────────
-fbAuth.onAuthStateChanged(async fbUser => {
-  if (fbUser) {
-    // Leer perfil desde Firestore
-    const doc = await fbDb.collection("usuarios").doc(fbUser.uid).get();
-    const data = doc.exists ? doc.data() : {};
-    currentUser = {
-      uid:       fbUser.uid,
-      name:      data.nombre || fbUser.email.split("@")[0],
-      email:     fbUser.email,
-      av:        (data.nombre || fbUser.email)[0].toUpperCase(),
-      reports:   data.reportes  || 0,
-      pts:       data.puntos    || 0,
-      cosmetics: data.cosmetics || {},
-      favorites: data.favorites || [],
-      joined:    data.creado?.toDate().toLocaleDateString("es-CL", {month:"long",year:"numeric"}) || "Recién llegado"
-    };
-    renderHeader();
-    showToast(`¡Hola, ${currentUser.name.split(" ")[0]}! 👋`);
-    showView("map");
-  } else {
-    currentUser = null;
-    renderHeader();
+// ──────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────
+function init() {
+  if (!store.get('apiKey', '')) {
+    showScreen('settings');
+    toast('Configura tu API Key para comenzar', '');
+    return;
   }
-});
-
-// ── CARGAR PRECIOS DESDE FIRESTORE EN TIEMPO REAL ─────────────────────────────
-fbDb.collection("precios")
-  .orderBy("timestamp", "desc")
-  .limit(200)
-  .onSnapshot(snapshot => {
-    stations = [];
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      stations.push({
-        id:       doc.id,
-        docId:    doc.id,   // Firestore document ID para updates directos
-        name:     d.nombre,
-        lat:      d.lat,
-        lng:      d.lng,
-        address:  d.direccion || "Sin dirección",
-        region:   d.region    || "Metropolitana",
-        prices:   { [d.combustible]: d.precio },
-        placeId:  d.placeId   || null,
-        by:       d.usuarioNombre || "Anónimo",
-        ago:      d.timestamp ? timeAgo(d.timestamp.toDate()) : "ahora",
-        v:        d.votos     || 1,
-        fromGoogle: !!d.placeId
-      });
-    });
-    if (gmap) renderMarkers();
-    if (document.getElementById("view-ranking").classList.contains("active")) renderRanking();
-  });
-
-function timeAgo(date) {
-  const diff = Math.floor((Date.now() - date) / 1000);
-  if (diff < 60)   return "ahora";
-  if (diff < 3600) return `hace ${Math.floor(diff/60)}m`;
-  if (diff < 86400) return `hace ${Math.floor(diff/3600)}h`;
-  return `hace ${Math.floor(diff/86400)}d`;
+  showScreen('camera');
 }
-</script>
 
-<script async defer
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD6_MOIgbB-2oi75xsal6HIj344t2b7ous&libraries=places&callback=initMap">
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+init();
 </script>
-</body>
-</html>
 </body>
 </html>
